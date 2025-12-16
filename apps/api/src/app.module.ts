@@ -15,8 +15,10 @@ import { PaymentsModule } from './modules/payments/payments.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { InventoryModule } from './modules/inventory/inventory.module';
 import { ExpensesModule } from './modules/expenses/expenses.module';
+import { ClientsModule } from './modules/clients/clients.module';
 import { SuppliersModule } from './modules/suppliers/suppliers.module';
 import { EmployeesModule } from './modules/employees/employees.module';
+import { DepartmentsModule } from './modules/departments/departments.module';
 import { AccountingModule } from './modules/accounting/accounting.module';
 import { PayrollModule } from './modules/payroll/payroll.module';
 import { AssetsModule } from './modules/assets/assets.module';
@@ -74,8 +76,10 @@ import { ReportsModule } from './modules/reports/reports.module';
     NotificationsModule,
     InventoryModule,
     ExpensesModule,
+    ClientsModule,
     SuppliersModule,
     EmployeesModule,
+    DepartmentsModule,
     AccountingModule,
     PayrollModule,
     AssetsModule,
