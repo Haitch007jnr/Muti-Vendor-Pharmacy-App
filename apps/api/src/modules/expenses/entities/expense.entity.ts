@@ -9,6 +9,13 @@ import {
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 
+export enum PaymentMethod {
+  CARD = 'card',
+  BANK_TRANSFER = 'bank_transfer',
+  CASH = 'cash',
+  WALLET = 'wallet',
+}
+
 @Entity('expenses')
 export class Expense {
   @ApiProperty({ description: 'Unique identifier' })
@@ -39,9 +46,9 @@ export class Expense {
   @Column({ type: 'date' })
   date: Date;
 
-  @ApiProperty({ description: 'Payment method', required: false })
-  @Column({ type: 'varchar', length: 50, name: 'payment_method', nullable: true })
-  paymentMethod: string;
+  @ApiProperty({ description: 'Payment method', required: false, enum: PaymentMethod })
+  @Column({ type: 'enum', enum: PaymentMethod, name: 'payment_method', nullable: true })
+  paymentMethod: PaymentMethod;
 
   @ApiProperty({ description: 'Receipt URL', required: false })
   @Column({ type: 'varchar', length: 500, name: 'receipt_url', nullable: true })

@@ -11,8 +11,6 @@ import {
   HttpCode,
   HttpStatus,
   Request,
-  ParseBoolPipe,
-  ParseIntPipe,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -106,10 +104,12 @@ export class ClientsController {
   @ApiResponse({ status: 200, description: 'Transactions retrieved successfully' })
   async getTransactions(
     @Param('id') id: string,
-    @Query('limit', new ParseIntPipe({ optional: true })) limit = 10,
-    @Query('offset', new ParseIntPipe({ optional: true })) offset = 0,
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
   ) {
-    return this.clientsService.getTransactions(id, limit, offset);
+    const limitNum = limit ? parseInt(limit, 10) : 10;
+    const offsetNum = offset ? parseInt(offset, 10) : 0;
+    return this.clientsService.getTransactions(id, limitNum, offsetNum);
   }
 
   @Post(':id/transactions')

@@ -7,6 +7,14 @@ import {
 } from 'typeorm';
 import { ApiProperty } from '@nestjs/swagger';
 
+export interface BankDetails {
+  bankName: string;
+  accountNumber: string;
+  accountName: string;
+  swiftCode?: string;
+  routingNumber?: string;
+}
+
 @Entity('suppliers')
 export class Supplier {
   @ApiProperty({ description: 'Unique identifier' })
@@ -47,7 +55,7 @@ export class Supplier {
 
   @ApiProperty({ description: 'Bank details', required: false })
   @Column({ type: 'jsonb', name: 'bank_details', nullable: true })
-  bankDetails: any;
+  bankDetails: BankDetails;
 
   @ApiProperty({ description: 'Contact person', required: false })
   @Column({ type: 'varchar', length: 255, name: 'contact_person', nullable: true })

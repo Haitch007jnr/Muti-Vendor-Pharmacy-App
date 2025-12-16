@@ -84,9 +84,11 @@ export class ClientsService {
       const { type, amount, description, reference } = createTransactionDto;
 
       let newBalance: number;
-      if (type === TransactionType.DEBIT) {
+      if (type === TransactionType.CREDIT) {
+        // Credit increases the client's balance (money owed by client)
         newBalance = Number(client.balance) + Number(amount);
       } else {
+        // Debit decreases the client's balance (payment from client)
         newBalance = Number(client.balance) - Number(amount);
       }
 

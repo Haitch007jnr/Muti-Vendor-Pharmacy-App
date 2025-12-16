@@ -5,9 +5,11 @@ import {
   IsDateString,
   IsOptional,
   IsUUID,
+  IsEnum,
   Min,
   MaxLength,
 } from 'class-validator';
+import { PaymentMethod } from '../entities/expense.entity';
 
 export class CreateExpenseDto {
   @ApiProperty({ description: 'Vendor ID', example: '123e4567-e89b-12d3-a456-426614174000' })
@@ -39,10 +41,10 @@ export class CreateExpenseDto {
   @IsDateString()
   date: string;
 
-  @ApiProperty({ description: 'Payment method', required: false, example: 'cash' })
+  @ApiProperty({ description: 'Payment method', required: false, enum: PaymentMethod, example: PaymentMethod.CASH })
   @IsOptional()
-  @IsString()
-  paymentMethod?: string;
+  @IsEnum(PaymentMethod)
+  paymentMethod?: PaymentMethod;
 
   @ApiProperty({ description: 'Receipt URL', required: false })
   @IsOptional()

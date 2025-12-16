@@ -8,6 +8,7 @@ import {
   IsObject,
   MaxLength,
 } from 'class-validator';
+import { BankDetails } from '../entities/supplier.entity';
 
 export class CreateSupplierDto {
   @ApiProperty({ description: 'Vendor ID', example: '123e4567-e89b-12d3-a456-426614174000' })
@@ -60,7 +61,7 @@ export class CreateSupplierDto {
   })
   @IsOptional()
   @IsObject()
-  bankDetails?: any;
+  bankDetails?: BankDetails;
 
   @ApiProperty({ description: 'Contact person', required: false })
   @IsOptional()
