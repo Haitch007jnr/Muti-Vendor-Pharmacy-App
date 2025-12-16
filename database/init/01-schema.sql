@@ -219,6 +219,38 @@ CREATE TABLE expenses (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Clients Table
+CREATE TABLE clients (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    vendor_id UUID REFERENCES vendors(id) ON DELETE CASCADE,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255),
+    phone VARCHAR(20),
+    address TEXT,
+    city VARCHAR(100),
+    country VARCHAR(100) DEFAULT 'Nigeria',
+    tax_id VARCHAR(50),
+    contact_person VARCHAR(255),
+    balance DECIMAL(15,2) DEFAULT 0,
+    is_active BOOLEAN DEFAULT TRUE,
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Client Transactions Table
+CREATE TABLE client_transactions (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    client_id UUID REFERENCES clients(id) ON DELETE CASCADE,
+    type transaction_type NOT NULL,
+    amount DECIMAL(15,2) NOT NULL,
+    balance_after DECIMAL(15,2) NOT NULL,
+    description TEXT NOT NULL,
+    reference VARCHAR(255),
+    created_by UUID REFERENCES users(id),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Accounts Table (For accounting management)
 CREATE TABLE accounts (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -354,6 +386,15 @@ CREATE INDEX idx_activity_logs_user_id ON activity_logs(user_id);
 CREATE INDEX idx_activity_logs_vendor_id ON activity_logs(vendor_id);
 CREATE INDEX idx_activity_logs_resource ON activity_logs(resource, resource_id);
 CREATE INDEX idx_api_keys_vendor_id ON api_keys(vendor_id);
+CREATE INDEX idx_expenses_vendor_id ON expenses(vendor_id);
+CREATE INDEX idx_expenses_date ON expenses(date);
+CREATE INDEX idx_clients_vendor_id ON clients(vendor_id);
+CREATE INDEX idx_clients_name ON clients(name);
+CREATE INDEX idx_client_transactions_client_id ON client_transactions(client_id);
+CREATE INDEX idx_employees_vendor_id ON employees(vendor_id);
+CREATE INDEX idx_employees_department_id ON employees(department_id);
+CREATE INDEX idx_departments_vendor_id ON departments(vendor_id);
+CREATE INDEX idx_suppliers_vendor_id ON suppliers(vendor_id);
 
 -- Create updated_at trigger function
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -373,3 +414,8 @@ CREATE TRIGGER update_orders_updated_at BEFORE UPDATE ON orders FOR EACH ROW EXE
 CREATE TRIGGER update_payments_updated_at BEFORE UPDATE ON payments FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_roles_updated_at BEFORE UPDATE ON roles FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 CREATE TRIGGER update_api_keys_updated_at BEFORE UPDATE ON api_keys FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_expenses_updated_at BEFORE UPDATE ON expenses FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_clients_updated_at BEFORE UPDATE ON clients FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_employees_updated_at BEFORE UPDATE ON employees FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_departments_updated_at BEFORE UPDATE ON departments FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_suppliers_updated_at BEFORE UPDATE ON suppliers FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
