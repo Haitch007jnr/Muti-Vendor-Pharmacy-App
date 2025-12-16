@@ -22,9 +22,9 @@ export class MonnifyService implements IPaymentGateway {
   private readonly baseUrl: string;
 
   constructor(private configService: ConfigService) {
-    this.apiKey = this.configService.get<string>('MONNIFY_API_KEY');
-    this.secretKey = this.configService.get<string>('MONNIFY_SECRET_KEY');
-    this.contractCode = this.configService.get<string>('MONNIFY_CONTRACT_CODE');
+    this.apiKey = this.configService.get<string>('MONNIFY_API_KEY') || '';
+    this.secretKey = this.configService.get<string>('MONNIFY_SECRET_KEY') || '';
+    this.contractCode = this.configService.get<string>('MONNIFY_CONTRACT_CODE') || '';
     this.baseUrl = this.configService.get<string>('MONNIFY_BASE_URL') || 'https://sandbox.monnify.com';
 
     if (!this.apiKey || !this.secretKey || !this.contractCode) {
