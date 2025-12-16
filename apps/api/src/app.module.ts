@@ -24,6 +24,9 @@ import { PayrollModule } from './modules/payroll/payroll.module';
 import { AssetsModule } from './modules/assets/assets.module';
 import { LoansModule } from './modules/loans/loans.module';
 import { ReportsModule } from './modules/reports/reports.module';
+import { PurchasesModule } from './modules/purchases/purchases.module';
+import { SalesModule } from './modules/sales/sales.module';
+import { PosModule } from './modules/pos/pos.module';
 
 @Module({
   imports: [
@@ -85,6 +88,9 @@ import { ReportsModule } from './modules/reports/reports.module';
     AssetsModule,
     LoansModule,
     ReportsModule,
+    PurchasesModule,
+    SalesModule,
+    PosModule,
   ],
   controllers: [AppController],
   providers: [AppService],
