@@ -58,7 +58,7 @@ export class PaymentsService {
   private generateReference(gateway: PaymentGateway): string {
     const prefix = gateway === PaymentGateway.PAYSTACK ? 'PST' : 'MNF';
     const timestamp = Date.now();
-    const random = Math.random().toString(36).substr(2, 9).toUpperCase();
+    const random = Math.random().toString(36).substring(2, 11).toUpperCase();
     
     return `${prefix}-${timestamp}-${random}`;
   }

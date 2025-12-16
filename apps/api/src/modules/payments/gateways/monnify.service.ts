@@ -216,6 +216,6 @@ export class MonnifyService implements IPaymentGateway {
   }
 
   private generateReference(): string {
-    return `MNF-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    return `MNF-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
   }
 }
