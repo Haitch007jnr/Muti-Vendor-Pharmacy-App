@@ -270,19 +270,19 @@ This project is proprietary and confidential.
 
 ## 👥 Team
 
-- Project Lead: [Your Name]
-- Backend Team: [Team Members]
-- Frontend Team: [Team Members]
-- Mobile Team: [Team Members]
-- DevOps Team: [Team Members]
+- Project Lead: [Idris Hamisu]
+- Backend Team: [Idris Hamisu]
+- Frontend Team: [Idris Hamisu]
+- Mobile Team: [Idris Hamisu]
+- DevOps Team: [Idris Hamisu]
 
 ## 📞 Support
 
 For support and queries:
-- Email: support@pharmacy.com
+- Email: info@mygetwell.app
 - Documentation: [Link to docs]
 - Issue Tracker: GitHub Issues
 
 ---
 
-**Built with ❤️ by the Pharmacy Platform Team**
+**Built with ❤️ by Haitch Tech Solutions**
