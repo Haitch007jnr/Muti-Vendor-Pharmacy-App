@@ -99,10 +99,10 @@ Muti-Vendor-Pharmacy-App/
 
 ### Phase 1: Core Infrastructure & Architecture ✅
 - [x] System architecture and technology stack finalization
-- [ ] Database schema design for multi-vendor, multi-tenant operations
-- [ ] Authentication and authorization framework (Dynamic RBAC)
-- [ ] API gateway and service layer structure
-- [ ] Payment gateway abstraction layer (Paystack/Monnify)
+- [x] Database schema design for multi-vendor, multi-tenant operations
+- [x] Authentication and authorization framework (Dynamic RBAC)
+- [x] API gateway and service layer structure
+- [x] Payment gateway abstraction layer (Paystack/Monnify)
 
 ### Phase 2: Business Management Modules
 - [ ] Expense Management
