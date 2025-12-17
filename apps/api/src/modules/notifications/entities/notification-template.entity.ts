@@ -31,7 +31,7 @@ export class NotificationTemplate {
   body: string;
 
   @Column({ type: "jsonb", nullable: true })
-  variables: string[];
+  variables: string[] | null;
 
   @Column({ type: "text", nullable: true })
   description: string;

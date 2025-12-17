@@ -72,9 +72,9 @@ export class TwilioService implements INotificationProvider {
         to: recipient.phone,
       });
 
-      this.logger.log(
-        `SMS sent successfully to ${recipient.phone}: ${message.sid}`,
-      );
+      // Mask phone number for logging to protect privacy
+      const maskedPhone = this.maskPhoneNumber(recipient.phone);
+      this.logger.log(`SMS sent successfully to ${maskedPhone}: ${message.sid}`);
 
       return {
         success: true,
@@ -93,6 +93,16 @@ export class TwilioService implements INotificationProvider {
         error: error.message || "Failed to send SMS",
       };
     }
+  }
+
+  private maskPhoneNumber(phone: string): string {
+    // Mask phone number for privacy: show first 3 and last 2 digits
+    if (phone.length <= 5) {
+      return "***";
+    }
+    const start = phone.substring(0, 3);
+    const end = phone.substring(phone.length - 2);
+    return `${start}***${end}`;
   }
 
   private mapTwilioStatus(status: string): NotificationStatus {

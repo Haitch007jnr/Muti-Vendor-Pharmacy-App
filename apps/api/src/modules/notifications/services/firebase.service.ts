@@ -16,6 +16,8 @@ export class FirebaseService implements INotificationProvider {
 
   constructor(private configService: ConfigService) {
     const projectId = this.configService.get<string>("FIREBASE_PROJECT_ID");
+    // Private key from environment may have escaped newlines (\n as literal text)
+    // Replace escaped newlines with actual newline characters for proper parsing
     const privateKey = this.configService
       .get<string>("FIREBASE_PRIVATE_KEY")
       ?.replace(/\\n/g, "\n");

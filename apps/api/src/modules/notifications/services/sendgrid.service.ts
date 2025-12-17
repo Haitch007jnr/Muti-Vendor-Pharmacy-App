@@ -97,7 +97,15 @@ export class SendGridService implements INotificationProvider {
   }
 
   private formatHtmlBody(text: string): string {
-    // Simple conversion: replace newlines with <br> tags
-    return text.replace(/\n/g, "<br>");
+    // Escape HTML characters to prevent XSS vulnerabilities
+    const escaped = text
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+
+    // Convert newlines to <br> tags after escaping
+    return escaped.replace(/\n/g, "<br>");
   }
 }

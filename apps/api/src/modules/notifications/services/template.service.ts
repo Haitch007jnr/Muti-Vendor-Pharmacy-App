@@ -115,14 +115,9 @@ export class TemplateService {
     text: string,
     variables: Record<string, any>,
   ): string {
-    let result = text;
-
-    // Replace {{variable}} with actual values
-    Object.keys(variables).forEach((key) => {
-      const regex = new RegExp(`{{\\s*${key}\\s*}}`, "g");
-      result = result.replace(regex, String(variables[key]));
+    // Replace {{variable}} with actual values using a single regex with callback
+    return text.replace(/\{\{\s*(\w+)\s*\}\}/g, (match, key) => {
+      return variables[key] !== undefined ? String(variables[key]) : match;
     });
-
-    return result;
   }
 }

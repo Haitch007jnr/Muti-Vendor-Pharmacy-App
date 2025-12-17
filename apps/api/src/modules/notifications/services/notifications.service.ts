@@ -5,6 +5,7 @@ import { FirebaseService } from "./firebase.service";
 import { TemplateService } from "./template.service";
 import {
   NotificationChannel,
+  NotificationStatus,
   INotificationProvider,
   SendNotificationRequest,
   SendNotificationResponse,
@@ -90,7 +91,7 @@ export class NotificationsService {
 
       return {
         success: false,
-        status: error.status,
+        status: NotificationStatus.FAILED,
         error: error.message || "Failed to send notification",
       };
     }
