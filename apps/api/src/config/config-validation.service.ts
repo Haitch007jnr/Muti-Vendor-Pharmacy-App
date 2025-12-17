@@ -66,7 +66,20 @@ export class ConfigValidationService implements OnModuleInit {
       key: 'JWT_SECRET',
       required: true,
       description: 'JWT secret key',
-      validator: (value) => value.length >= 32,
+      validator: (value) => {
+        // Check minimum length
+        if (value.length < 32) return false;
+        
+        // Check for sufficient entropy (not all same characters, not sequential)
+        const uniqueChars = new Set(value).size;
+        const hasVariety = uniqueChars >= 16; // At least 16 unique characters
+        const notSequential = !/^(.)\1+$/.test(value); // Not all same character
+        const notCommonPattern = !['12345', 'abcde', 'qwerty'].some(pattern => 
+          value.toLowerCase().includes(pattern)
+        );
+        
+        return hasVariety && notSequential && notCommonPattern;
+      },
     },
     {
       key: 'JWT_EXPIRATION',

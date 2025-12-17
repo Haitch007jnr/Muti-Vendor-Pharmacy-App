@@ -739,13 +739,26 @@ npm test -- --ci --reporters=default --reporters=jest-junit
 
 ## Continuous Improvement
 
-- Review test coverage weekly
-- Add tests for reported bugs
-- Update tests when features change
-- Remove obsolete tests
-- Refactor duplicated test code
-- Monitor test execution time
-- Analyze flaky tests
+### Measurable Targets
+
+- **Code Coverage:** Maintain ≥80% coverage across all modules
+- **Test Execution Time:** Keep unit tests under 5 minutes
+- **Flaky Test Rate:** <1% of total tests
+- **Bug Escape Rate:** <5% of bugs found in production
+- **Test Automation:** ≥90% of regression tests automated
+
+### Processes
+
+- **Weekly Review:** Review test coverage and identify gaps
+- **Bug Testing:** Add tests for every reported bug before fixing
+- **Refactoring:** Update tests when features change, remove obsolete tests
+- **Test Optimization:** Refactor duplicated test code monthly
+- **Performance Monitoring:** Track and optimize test execution time
+- **Flaky Test Analysis:** Investigate and fix flaky tests immediately
+  - Document flaky test patterns
+  - Use retry mechanisms only as last resort
+  - Root cause analysis for persistent flakes
+  - Consider removing chronically flaky tests
 
 ## Resources
 

@@ -59,7 +59,20 @@ FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYour private key here\n-----E
 FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxxxx@your-project.iam.gserviceaccount.com
 ```
 
-**Important:** The private key must include newline characters (`\n`). Do not remove them.
+**Important:** 
+- The private key must include newline characters (`\n`). Do not remove them.
+- If you encounter issues with shell escaping, consider base64 encoding the key:
+  ```bash
+  # Encode the private key
+  echo "$FIREBASE_PRIVATE_KEY" | base64
+  
+  # In your code, decode it:
+  const privateKey = Buffer.from(process.env.FIREBASE_PRIVATE_KEY_BASE64, 'base64').toString('utf-8');
+  ```
+- Alternative: Store the entire service account JSON file and reference the path:
+  ```env
+  FIREBASE_SERVICE_ACCOUNT_PATH=./config/firebase-service-account.json
+  ```
 
 ### Verify Backend Setup
 
