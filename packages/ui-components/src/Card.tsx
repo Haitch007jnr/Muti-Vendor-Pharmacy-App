@@ -67,5 +67,5 @@ export interface CardContentProps {
 }
 
 export const CardContent = ({ children, className }: CardContentProps) => {
-  return <div className={clsx(className)}>{children}</div>;
+  return <div className={className}>{children}</div>;
 };

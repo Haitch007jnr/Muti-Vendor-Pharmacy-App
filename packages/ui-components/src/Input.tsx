@@ -9,7 +9,8 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ className, label, error, helperText, id, ...props }, ref) => {
-    const inputId = id || `input-${Math.random().toString(36).substring(7)}`;
+    // Generate a unique ID using crypto if available, fallback to timestamp
+    const inputId = id || `input-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
 
     return (
       <div className="w-full">
