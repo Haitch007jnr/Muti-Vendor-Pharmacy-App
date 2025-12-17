@@ -171,11 +171,18 @@ export class PaymentsController {
     @Query("vendorId") vendorId?: string,
     @Query("reconciled") reconciled?: string,
   ) {
+    let reconciledFilter: boolean | undefined;
+    if (reconciled === "true") {
+      reconciledFilter = true;
+    } else if (reconciled === "false") {
+      reconciledFilter = false;
+    }
+
     return this.paymentsService.getAllTransactions({
       gateway,
       status: status as any,
       vendorId,
-      reconciled: reconciled === "true" ? true : reconciled === "false" ? false : undefined,
+      reconciled: reconciledFilter,
     });
   }
 

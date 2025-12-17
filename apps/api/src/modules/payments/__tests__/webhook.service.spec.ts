@@ -20,7 +20,9 @@ describe("WebhookService", () => {
     get: jest.fn((key: string) => {
       const config: Record<string, string> = {
         PAYSTACK_SECRET_KEY: "test_secret_key",
+        PAYSTACK_WEBHOOK_SECRET: "test_webhook_secret",
         MONNIFY_SECRET_KEY: "test_secret_key",
+        MONNIFY_WEBHOOK_SECRET: "test_webhook_secret",
       };
       return config[key];
     }),
@@ -73,9 +75,9 @@ describe("WebhookService", () => {
   });
 
   describe("verifyPaystackSignature", () => {
-    it("should verify valid Paystack signature", () => {
+    it("should verify valid Paystack signature using webhook secret", () => {
       const payload = JSON.stringify({ event: "charge.success" });
-      const secret = "test_secret_key";
+      const secret = "test_webhook_secret";
       const signature = crypto
         .createHmac("sha512", secret)
         .update(payload)
@@ -97,9 +99,9 @@ describe("WebhookService", () => {
   });
 
   describe("verifyMonnifySignature", () => {
-    it("should verify valid Monnify signature", () => {
+    it("should verify valid Monnify signature using webhook secret", () => {
       const payload = JSON.stringify({ event: "SUCCESSFUL_TRANSACTION" });
-      const secret = "test_secret_key";
+      const secret = "test_webhook_secret";
       const signature = crypto
         .createHmac("sha512", secret)
         .update(payload)
@@ -132,7 +134,7 @@ describe("WebhookService", () => {
 
     it("should process valid Paystack webhook", async () => {
       const rawPayload = JSON.stringify(payload);
-      const secret = "test_secret_key";
+      const secret = "test_webhook_secret";
       const signature = crypto
         .createHmac("sha512", secret)
         .update(rawPayload)
@@ -176,7 +178,7 @@ describe("WebhookService", () => {
 
     it("should handle webhook processing errors gracefully", async () => {
       const rawPayload = JSON.stringify(payload);
-      const secret = "test_secret_key";
+      const secret = "test_webhook_secret";
       const signature = crypto
         .createHmac("sha512", secret)
         .update(rawPayload)
@@ -217,7 +219,7 @@ describe("WebhookService", () => {
 
     it("should process valid Monnify webhook", async () => {
       const rawPayload = JSON.stringify(payload);
-      const secret = "test_secret_key";
+      const secret = "test_webhook_secret";
       const signature = crypto
         .createHmac("sha512", secret)
         .update(rawPayload)

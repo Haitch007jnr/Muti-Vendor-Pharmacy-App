@@ -53,8 +53,10 @@ After saving, Paystack will display a **webhook secret**. This is used to verify
 
 Add it to your environment variables:
 ```bash
-PAYSTACK_SECRET_KEY=your_webhook_secret_here
+PAYSTACK_WEBHOOK_SECRET=your_webhook_secret_here
 ```
+
+**Note:** For added security, use a dedicated webhook secret. If not provided, the system will fall back to using `PAYSTACK_SECRET_KEY`.
 
 ### Step 4: Test Webhook
 
@@ -94,9 +96,10 @@ Monnify will provide a webhook secret or use your API secret key for verificatio
 
 Add it to your environment variables:
 ```bash
-MONNIFY_SECRET_KEY=your_secret_key_here
 MONNIFY_WEBHOOK_SECRET=your_webhook_secret_here
 ```
+
+**Note:** If `MONNIFY_WEBHOOK_SECRET` is not provided, the system will fall back to using `MONNIFY_SECRET_KEY` for webhook verification.
 
 ### Step 4: Test Webhook
 
@@ -258,7 +261,8 @@ Both gateways sign webhooks with HMAC SHA512. Our backend automatically verifies
 const crypto = require('crypto');
 
 function verifyPaystackSignature(payload, signature) {
-  const secret = process.env.PAYSTACK_SECRET_KEY;
+  // Use dedicated webhook secret, fallback to API secret if not set
+  const secret = process.env.PAYSTACK_WEBHOOK_SECRET || process.env.PAYSTACK_SECRET_KEY;
   const hash = crypto
     .createHmac('sha512', secret)
     .update(payload)
@@ -273,7 +277,8 @@ function verifyPaystackSignature(payload, signature) {
 const crypto = require('crypto');
 
 function verifyMonnifySignature(payload, signature) {
-  const secret = process.env.MONNIFY_SECRET_KEY;
+  // Use dedicated webhook secret, fallback to API secret if not set
+  const secret = process.env.MONNIFY_WEBHOOK_SECRET || process.env.MONNIFY_SECRET_KEY;
   const hash = crypto
     .createHmac('sha512', secret)
     .update(payload)
