@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { ScreenProps } from '../../types';
 
-export default function CheckoutScreen({ navigation }: any) {
+export default function CheckoutScreen({ navigation }: ScreenProps) {
   const handlePlaceOrder = () => {
     Alert.alert(
       'Order Placed',

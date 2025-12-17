@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { Order, ScreenProps } from '../../types';
 
-const mockOrders = [
+const mockOrders: Order[] = [
   {
     id: '1',
     orderNumber: 'ORD-2024-001',
@@ -20,8 +21,8 @@ const mockOrders = [
   },
 ];
 
-export default function OrdersScreen({ navigation }: any) {
-  const getStatusColor = (status: string) => {
+export default function OrdersScreen({ navigation }: ScreenProps) {
+  const getStatusColor = (status: Order['status']) => {
     switch (status) {
       case 'Delivered':
         return '#059669';
@@ -34,7 +35,7 @@ export default function OrdersScreen({ navigation }: any) {
     }
   };
 
-  const renderOrder = ({ item }: any) => (
+  const renderOrder = ({ item }: { item: Order }) => (
     <TouchableOpacity
       style={styles.orderCard}
       onPress={() => navigation.navigate('OrderDetail', { orderId: item.id })}

@@ -1,8 +1,9 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { ScreenProps } from '../../types';
 
-export default function ProductDetailScreen({ route }: any) {
-  const { productId } = route.params;
+export default function ProductDetailScreen({ route }: ScreenProps) {
+  const { productId } = (route?.params || {}) as { productId: string };
 
   return (
     <ScrollView style={styles.container}>

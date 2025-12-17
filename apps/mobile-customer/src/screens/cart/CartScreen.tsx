@@ -1,15 +1,16 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { CartItem, ScreenProps } from '../../types';
 
-const mockCartItems = [
+const mockCartItems: CartItem[] = [
   { id: '1', name: 'Paracetamol 500mg', price: 5.99, quantity: 2, image: '💊' },
   { id: '2', name: 'Vitamin C 1000mg', price: 12.99, quantity: 1, image: '💊' },
 ];
 
-export default function CartScreen({ navigation }: any) {
+export default function CartScreen({ navigation }: ScreenProps) {
   const total = mockCartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-  const renderCartItem = ({ item }: any) => (
+  const renderCartItem = ({ item }: { item: CartItem }) => (
     <View style={styles.cartItem}>
       <Text style={styles.itemImage}>{item.image}</Text>
       <View style={styles.itemInfo}>
