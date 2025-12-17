@@ -187,25 +187,46 @@ export class MonnifyService implements IPaymentGateway {
     }
   }
 
-  async handleWebhook(payload: PaymentWebhookPayload): Promise<void> {
+  async handleWebhook(payload: PaymentWebhookPayload): Promise<{
+    event: string;
+    reference: string;
+    status: PaymentStatus;
+    message: string;
+  }> {
     this.logger.log(`Monnify webhook event: ${payload.event}`);
+
+    let status: PaymentStatus;
+    let message: string;
+    const reference = payload.data.paymentReference || payload.data.refundReference;
 
     switch (payload.event) {
       case "SUCCESSFUL_TRANSACTION":
-        this.logger.log(`Payment successful: ${payload.data.paymentReference}`);
-        // Handle successful payment
+        status = PaymentStatus.COMPLETED;
+        message = `Payment successful: ${reference}`;
+        this.logger.log(message);
         break;
       case "FAILED_TRANSACTION":
-        this.logger.log(`Payment failed: ${payload.data.paymentReference}`);
-        // Handle failed payment
+        status = PaymentStatus.FAILED;
+        message = `Payment failed: ${reference}`;
+        this.logger.log(message);
         break;
       case "REFUND_COMPLETED":
-        this.logger.log(`Refund completed: ${payload.data.refundReference}`);
-        // Handle refund
+        status = PaymentStatus.REFUNDED;
+        message = `Refund completed: ${reference}`;
+        this.logger.log(message);
         break;
       default:
-        this.logger.log(`Unhandled webhook event: ${payload.event}`);
+        status = PaymentStatus.PENDING;
+        message = `Unhandled webhook event: ${payload.event}`;
+        this.logger.log(message);
     }
+
+    return {
+      event: payload.event,
+      reference,
+      status,
+      message,
+    };
   }
 
   private mapMonnifyStatus(status: string): PaymentStatus {

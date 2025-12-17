@@ -125,25 +125,46 @@ export class PaystackService implements IPaymentGateway {
     }
   }
 
-  async handleWebhook(payload: PaymentWebhookPayload): Promise<void> {
+  async handleWebhook(payload: PaymentWebhookPayload): Promise<{
+    event: string;
+    reference: string;
+    status: PaymentStatus;
+    message: string;
+  }> {
     this.logger.log(`Paystack webhook event: ${payload.event}`);
+
+    let status: PaymentStatus;
+    let message: string;
+    const reference = payload.data.reference;
 
     switch (payload.event) {
       case "charge.success":
-        this.logger.log(`Payment successful: ${payload.data.reference}`);
-        // Handle successful payment
+        status = PaymentStatus.COMPLETED;
+        message = `Payment successful: ${reference}`;
+        this.logger.log(message);
         break;
       case "charge.failed":
-        this.logger.log(`Payment failed: ${payload.data.reference}`);
-        // Handle failed payment
+        status = PaymentStatus.FAILED;
+        message = `Payment failed: ${reference}`;
+        this.logger.log(message);
         break;
       case "refund.processed":
-        this.logger.log(`Refund processed: ${payload.data.reference}`);
-        // Handle refund
+        status = PaymentStatus.REFUNDED;
+        message = `Refund processed: ${reference}`;
+        this.logger.log(message);
         break;
       default:
-        this.logger.log(`Unhandled webhook event: ${payload.event}`);
+        status = PaymentStatus.PENDING;
+        message = `Unhandled webhook event: ${payload.event}`;
+        this.logger.log(message);
     }
+
+    return {
+      event: payload.event,
+      reference,
+      status,
+      message,
+    };
   }
 
   private mapPaystackStatus(status: string): PaymentStatus {

@@ -56,6 +56,13 @@ export interface PaymentWebhookPayload {
   data: any;
 }
 
+export interface PaymentWebhookResponse {
+  event: string;
+  reference: string;
+  status: PaymentStatus;
+  message: string;
+}
+
 export interface IPaymentGateway {
   initializePayment(
     request: InitializePaymentRequest,
@@ -65,5 +72,5 @@ export interface IPaymentGateway {
 
   refundPayment(request: RefundPaymentRequest): Promise<RefundPaymentResponse>;
 
-  handleWebhook(payload: PaymentWebhookPayload): Promise<void>;
+  handleWebhook(payload: PaymentWebhookPayload): Promise<PaymentWebhookResponse>;
 }
