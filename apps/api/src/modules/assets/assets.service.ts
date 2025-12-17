@@ -20,6 +20,8 @@ import { UpdateAssetCategoryDto } from "./dto/update-asset-category.dto";
 
 @Injectable()
 export class AssetsService {
+  private readonly PERCENTAGE_MULTIPLIER = 100;
+
   constructor(
     @InjectRepository(Asset)
     private readonly assetRepository: Repository<Asset>,
@@ -91,6 +93,10 @@ export class AssetsService {
     depreciationMethod: DepreciationMethod,
     depreciationRate?: number,
   ): { rate: number } {
+    if (purchaseCost === 0) {
+      return { rate: 0 };
+    }
+
     let rate: number;
 
     switch (depreciationMethod) {
@@ -98,28 +104,28 @@ export class AssetsService {
         // Annual depreciation = (Cost - Salvage Value) / Useful Life
         const straightLineDepreciation =
           (purchaseCost - salvageValue) / usefulLife;
-        rate = (straightLineDepreciation / purchaseCost) * 100;
+        rate = (straightLineDepreciation / purchaseCost) * this.PERCENTAGE_MULTIPLIER;
         break;
 
       case DepreciationMethod.DECLINING_BALANCE:
         // Use provided rate or calculate from useful life
-        rate = depreciationRate || (1 / usefulLife) * 100;
+        rate = depreciationRate || (1 / usefulLife) * this.PERCENTAGE_MULTIPLIER;
         break;
 
       case DepreciationMethod.DOUBLE_DECLINING_BALANCE:
         // Rate = 2 / Useful Life
-        rate = (2 / usefulLife) * 100;
+        rate = (2 / usefulLife) * this.PERCENTAGE_MULTIPLIER;
         break;
 
       case DepreciationMethod.UNITS_OF_PRODUCTION:
         // This method requires production units, default to straight line
         const unitsDepreciation = (purchaseCost - salvageValue) / usefulLife;
-        rate = (unitsDepreciation / purchaseCost) * 100;
+        rate = (unitsDepreciation / purchaseCost) * this.PERCENTAGE_MULTIPLIER;
         break;
 
       default:
         const defaultDepreciation = (purchaseCost - salvageValue) / usefulLife;
-        rate = (defaultDepreciation / purchaseCost) * 100;
+        rate = (defaultDepreciation / purchaseCost) * this.PERCENTAGE_MULTIPLIER;
     }
 
     return { rate };
@@ -318,9 +324,35 @@ export class AssetsService {
       return existing;
     }
 
-    // Calculate monthly depreciation (annual / 12)
-    const monthlyDepreciationAmount =
-      (asset.purchaseCost - asset.salvageValue) / asset.usefulLife / 12;
+    // Calculate monthly depreciation based on asset's depreciation method
+    let monthlyDepreciationAmount: number;
+
+    switch (asset.depreciationMethod) {
+      case DepreciationMethod.STRAIGHT_LINE:
+        // Straight line: (Cost - Salvage) / Useful Life / 12
+        monthlyDepreciationAmount =
+          (asset.purchaseCost - asset.salvageValue) / asset.usefulLife / 12;
+        break;
+
+      case DepreciationMethod.DECLINING_BALANCE:
+        // Declining balance: Current Value * Rate / 12
+        monthlyDepreciationAmount =
+          (asset.currentValue * asset.depreciationRate) / this.PERCENTAGE_MULTIPLIER / 12;
+        break;
+
+      case DepreciationMethod.DOUBLE_DECLINING_BALANCE:
+        // Double declining: Current Value * (2 / Useful Life) / 12
+        monthlyDepreciationAmount =
+          (asset.currentValue * (2 / asset.usefulLife)) / 12;
+        break;
+
+      case DepreciationMethod.UNITS_OF_PRODUCTION:
+      default:
+        // Default to straight line
+        monthlyDepreciationAmount =
+          (asset.purchaseCost - asset.salvageValue) / asset.usefulLife / 12;
+        break;
+    }
 
     const openingValue = asset.currentValue;
     const closingValue = Math.max(

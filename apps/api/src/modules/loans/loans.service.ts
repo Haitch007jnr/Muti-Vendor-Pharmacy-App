@@ -17,6 +17,9 @@ import { CreateLoanPaymentDto } from "./dto/create-loan-payment.dto";
 
 @Injectable()
 export class LoansService {
+  private readonly MONTHS_IN_YEAR = 12;
+  private readonly PERCENTAGE_DIVISOR = 100;
+
   constructor(
     @InjectRepository(Loan)
     private readonly loanRepository: Repository<Loan>,
@@ -94,7 +97,8 @@ export class LoansService {
   } {
     // Calculate simple interest
     const interestAmount =
-      (principalAmount * interestRate * tenureMonths) / (12 * 100);
+      (principalAmount * interestRate * tenureMonths) /
+      (this.MONTHS_IN_YEAR * this.PERCENTAGE_DIVISOR);
     const totalAmount = principalAmount + interestAmount;
     const monthlyPayment = totalAmount / tenureMonths;
 
