@@ -11,15 +11,27 @@
     "dev": "turbo run dev",
     "build": "turbo run build",
     "test": "turbo run test",
+    "test:coverage": "turbo run test:coverage",
+    "test:e2e": "cd apps/api && npm run test:e2e",
+    "test:security": "cd apps/api && npm run test:e2e -- --testPathPattern=security",
+    "perf:load": "artillery run artillery-config.yml",
+    "perf:stress": "artillery run artillery-stress.yml",
+    "security:audit": "npm audit && snyk test",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+    "type-check": "turbo run type-check",
     "clean": "turbo run clean && rm -rf node_modules"
   },
   "devDependencies": {
     "turbo": "^1.11.0",
     "prettier": "^3.1.0",
     "eslint": "^8.55.0",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "artillery": "^2.0.3",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.0",
+    "@commitlint/cli": "^18.4.3",
+    "@commitlint/config-conventional": "^18.4.3"
   },
   "engines": {
     "node": ">=18.0.0",

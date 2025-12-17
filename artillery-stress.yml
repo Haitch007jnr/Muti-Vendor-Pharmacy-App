@@ -1,0 +1,35 @@
+config:
+  target: 'http://localhost:4000'
+  phases:
+    # Stress test - ramp up to breaking point
+    - duration: 300
+      arrivalRate: 100
+      rampTo: 1000
+      name: 'Ramp up to breaking point'
+    # Maintain high load
+    - duration: 180
+      arrivalRate: 1000
+      name: 'Sustained high load'
+  
+  defaults:
+    headers:
+      Content-Type: 'application/json'
+
+scenarios:
+  - name: 'Stress Test - Product API'
+    flow:
+      - get:
+          url: '/products?page=1&limit=50'
+
+  - name: 'Stress Test - Authentication'
+    flow:
+      - post:
+          url: '/auth/login'
+          json:
+            email: 'test@example.com'
+            password: 'Test@1234'
+
+  - name: 'Stress Test - Search'
+    flow:
+      - get:
+          url: '/products/search?q=medication'
