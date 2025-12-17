@@ -1,10 +1,19 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource, Between } from 'typeorm';
-import { Payroll, Payslip, PayrollStatus, PayslipStatus } from './entities/payroll.entity';
-import { CreatePayrollDto, PayslipItemDto } from './dto/create-payroll.dto';
-import { UpdatePayrollDto } from './dto/update-payroll.dto';
-import { GeneratePayslipDto } from './dto/generate-payslip.dto';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository, DataSource } from "typeorm";
+import {
+  Payroll,
+  Payslip,
+  PayrollStatus,
+  PayslipStatus,
+} from "./entities/payroll.entity";
+import { CreatePayrollDto, PayslipItemDto } from "./dto/create-payroll.dto";
+import { UpdatePayrollDto } from "./dto/update-payroll.dto";
+import { GeneratePayslipDto } from "./dto/generate-payslip.dto";
 
 @Injectable()
 export class PayrollService {
@@ -38,15 +47,15 @@ export class PayrollService {
     let tax = 0;
     let pension = 0;
 
-    if ('taxRate' in item && item.taxRate) {
+    if ("taxRate" in item && item.taxRate) {
       tax = (grossSalary * item.taxRate) / 100;
-    } else if ('tax' in item) {
+    } else if ("tax" in item) {
       tax = item.tax || 0;
     }
 
-    if ('pensionRate' in item && item.pensionRate) {
+    if ("pensionRate" in item && item.pensionRate) {
       pension = (grossSalary * item.pensionRate) / 100;
-    } else if ('pension' in item) {
+    } else if ("pension" in item) {
       pension = item.pension || 0;
     }
 
@@ -59,7 +68,10 @@ export class PayrollService {
     return { grossSalary, totalDeductions, netSalary };
   }
 
-  async create(createPayrollDto: CreatePayrollDto, userId: string): Promise<Payroll> {
+  async create(
+    createPayrollDto: CreatePayrollDto,
+    userId: string,
+  ): Promise<Payroll> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -147,15 +159,15 @@ export class PayrollService {
 
     return await this.payrollRepository.find({
       where,
-      order: { createdAt: 'DESC' },
-      relations: ['payslips'],
+      order: { createdAt: "DESC" },
+      relations: ["payslips"],
     });
   }
 
   async findOne(id: string): Promise<Payroll> {
     const payroll = await this.payrollRepository.findOne({
       where: { id },
-      relations: ['payslips'],
+      relations: ["payslips"],
     });
 
     if (!payroll) {
@@ -165,11 +177,14 @@ export class PayrollService {
     return payroll;
   }
 
-  async update(id: string, updatePayrollDto: UpdatePayrollDto): Promise<Payroll> {
+  async update(
+    id: string,
+    updatePayrollDto: UpdatePayrollDto,
+  ): Promise<Payroll> {
     const payroll = await this.findOne(id);
 
     if (payroll.status === PayrollStatus.PAID) {
-      throw new BadRequestException('Cannot update paid payroll');
+      throw new BadRequestException("Cannot update paid payroll");
     }
 
     Object.assign(payroll, updatePayrollDto);
@@ -182,7 +197,7 @@ export class PayrollService {
     const payroll = await this.findOne(id);
 
     if (payroll.status === PayrollStatus.PAID) {
-      throw new BadRequestException('Cannot delete paid payroll');
+      throw new BadRequestException("Cannot delete paid payroll");
     }
 
     await this.payrollRepository.remove(payroll);
@@ -191,8 +206,11 @@ export class PayrollService {
   async approvePayroll(id: string, userId: string): Promise<Payroll> {
     const payroll = await this.findOne(id);
 
-    if (payroll.status !== PayrollStatus.DRAFT && payroll.status !== PayrollStatus.PENDING) {
-      throw new BadRequestException('Payroll is not in draft or pending state');
+    if (
+      payroll.status !== PayrollStatus.DRAFT &&
+      payroll.status !== PayrollStatus.PENDING
+    ) {
+      throw new BadRequestException("Payroll is not in draft or pending state");
     }
 
     payroll.status = PayrollStatus.APPROVED;
@@ -213,7 +231,9 @@ export class PayrollService {
     const payroll = await this.findOne(id);
 
     if (payroll.status !== PayrollStatus.APPROVED) {
-      throw new BadRequestException('Payroll must be approved before marking as paid');
+      throw new BadRequestException(
+        "Payroll must be approved before marking as paid",
+      );
     }
 
     payroll.status = PayrollStatus.PAID;
@@ -232,7 +252,7 @@ export class PayrollService {
   async getPayslip(payslipId: string): Promise<Payslip> {
     const payslip = await this.payslipRepository.findOne({
       where: { id: payslipId },
-      relations: ['payroll'],
+      relations: ["payroll"],
     });
 
     if (!payslip) {
@@ -245,12 +265,16 @@ export class PayrollService {
   async getEmployeePayslips(employeeId: string): Promise<Payslip[]> {
     return await this.payslipRepository.find({
       where: { employeeId },
-      relations: ['payroll'],
-      order: { createdAt: 'DESC' },
+      relations: ["payroll"],
+      order: { createdAt: "DESC" },
     });
   }
 
-  async getPayrollSummary(vendorId: string, startDate?: Date, endDate?: Date): Promise<{
+  async getPayrollSummary(
+    vendorId: string,
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<{
     totalPayrolls: number;
     totalGross: number;
     totalDeductions: number;
@@ -258,45 +282,51 @@ export class PayrollService {
     totalEmployees: number;
   }> {
     const queryBuilder = this.payrollRepository
-      .createQueryBuilder('payroll')
-      .where('payroll.vendor_id = :vendorId', { vendorId });
+      .createQueryBuilder("payroll")
+      .where("payroll.vendor_id = :vendorId", { vendorId });
 
     if (startDate && endDate) {
-      queryBuilder.andWhere('payroll.period_start BETWEEN :startDate AND :endDate', {
-        startDate,
-        endDate,
-      });
+      queryBuilder.andWhere(
+        "payroll.period_start BETWEEN :startDate AND :endDate",
+        {
+          startDate,
+          endDate,
+        },
+      );
     }
 
     const summary = await queryBuilder
-      .select('COUNT(payroll.id)', 'totalPayrolls')
-      .addSelect('SUM(payroll.total_gross)', 'totalGross')
-      .addSelect('SUM(payroll.total_deductions)', 'totalDeductions')
-      .addSelect('SUM(payroll.total_net)', 'totalNet')
+      .select("COUNT(payroll.id)", "totalPayrolls")
+      .addSelect("SUM(payroll.total_gross)", "totalGross")
+      .addSelect("SUM(payroll.total_deductions)", "totalDeductions")
+      .addSelect("SUM(payroll.total_net)", "totalNet")
       .getRawOne();
 
     // Count unique employees
     const employeeCount = await this.payslipRepository
-      .createQueryBuilder('payslip')
-      .innerJoin('payslip.payroll', 'payroll')
-      .where('payroll.vendor_id = :vendorId', { vendorId })
-      .select('COUNT(DISTINCT payslip.employee_id)', 'count')
+      .createQueryBuilder("payslip")
+      .innerJoin("payslip.payroll", "payroll")
+      .where("payroll.vendor_id = :vendorId", { vendorId })
+      .select("COUNT(DISTINCT payslip.employee_id)", "count")
       .getRawOne();
 
     return {
-      totalPayrolls: parseInt(summary?.totalPayrolls || '0', 10),
-      totalGross: parseFloat(summary?.totalGross || '0'),
-      totalDeductions: parseFloat(summary?.totalDeductions || '0'),
-      totalNet: parseFloat(summary?.totalNet || '0'),
-      totalEmployees: parseInt(employeeCount?.count || '0', 10),
+      totalPayrolls: parseInt(summary?.totalPayrolls || "0", 10),
+      totalGross: parseFloat(summary?.totalGross || "0"),
+      totalDeductions: parseFloat(summary?.totalDeductions || "0"),
+      totalNet: parseFloat(summary?.totalNet || "0"),
+      totalEmployees: parseInt(employeeCount?.count || "0", 10),
     };
   }
 
-  async generateSinglePayslip(payrollId: string, generatePayslipDto: GeneratePayslipDto): Promise<Payslip> {
+  async generateSinglePayslip(
+    payrollId: string,
+    generatePayslipDto: GeneratePayslipDto,
+  ): Promise<Payslip> {
     const payroll = await this.findOne(payrollId);
 
     if (payroll.status === PayrollStatus.PAID) {
-      throw new BadRequestException('Cannot add payslip to paid payroll');
+      throw new BadRequestException("Cannot add payslip to paid payroll");
     }
 
     const calculations = this.calculatePayslip(generatePayslipDto);
@@ -309,8 +339,12 @@ export class PayrollService {
       bonuses: generatePayslipDto.bonuses || 0,
       overtime: generatePayslipDto.overtime || 0,
       grossSalary: calculations.grossSalary,
-      tax: generatePayslipDto.taxRate ? (calculations.grossSalary * generatePayslipDto.taxRate) / 100 : 0,
-      pension: generatePayslipDto.pensionRate ? (calculations.grossSalary * generatePayslipDto.pensionRate) / 100 : 0,
+      tax: generatePayslipDto.taxRate
+        ? (calculations.grossSalary * generatePayslipDto.taxRate) / 100
+        : 0,
+      pension: generatePayslipDto.pensionRate
+        ? (calculations.grossSalary * generatePayslipDto.pensionRate) / 100
+        : 0,
       healthInsurance: generatePayslipDto.healthInsurance || 0,
       otherDeductions: generatePayslipDto.otherDeductions || 0,
       totalDeductions: calculations.totalDeductions,

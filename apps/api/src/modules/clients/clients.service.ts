@@ -1,11 +1,18 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource } from 'typeorm';
-import { Client } from './entities/client.entity';
-import { ClientTransaction, TransactionType } from './entities/client-transaction.entity';
-import { CreateClientDto } from './dto/create-client.dto';
-import { UpdateClientDto } from './dto/update-client.dto';
-import { CreateTransactionDto } from './dto/create-transaction.dto';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository, DataSource } from "typeorm";
+import { Client } from "./entities/client.entity";
+import {
+  ClientTransaction,
+  TransactionType,
+} from "./entities/client-transaction.entity";
+import { CreateClientDto } from "./dto/create-client.dto";
+import { UpdateClientDto } from "./dto/update-client.dto";
+import { CreateTransactionDto } from "./dto/create-transaction.dto";
 
 @Injectable()
 export class ClientsService {
@@ -35,14 +42,14 @@ export class ClientsService {
 
     return await this.clientRepository.find({
       where,
-      order: { name: 'ASC' },
+      order: { name: "ASC" },
     });
   }
 
   async findOne(id: string): Promise<Client> {
     const client = await this.clientRepository.findOne({
       where: { id },
-      relations: ['transactions'],
+      relations: ["transactions"],
     });
 
     if (!client) {
@@ -93,7 +100,9 @@ export class ClientsService {
       }
 
       if (newBalance < 0) {
-        throw new BadRequestException('Insufficient balance for this transaction');
+        throw new BadRequestException(
+          "Insufficient balance for this transaction",
+        );
       }
 
       const transaction = this.transactionRepository.create({
@@ -121,12 +130,16 @@ export class ClientsService {
     }
   }
 
-  async getTransactions(clientId: string, limit = 10, offset = 0): Promise<ClientTransaction[]> {
+  async getTransactions(
+    clientId: string,
+    limit = 10,
+    offset = 0,
+  ): Promise<ClientTransaction[]> {
     await this.findOne(clientId); // Check if client exists
 
     return await this.transactionRepository.find({
       where: { clientId },
-      order: { createdAt: 'DESC' },
+      order: { createdAt: "DESC" },
       take: limit,
       skip: offset,
     });
@@ -137,7 +150,9 @@ export class ClientsService {
     return Number(client.balance);
   }
 
-  async importClients(clients: CreateClientDto[]): Promise<{ success: number; failed: number }> {
+  async importClients(
+    clients: CreateClientDto[],
+  ): Promise<{ success: number; failed: number }> {
     let success = 0;
     let failed = 0;
 

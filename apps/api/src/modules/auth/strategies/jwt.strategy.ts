@@ -1,10 +1,10 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { PassportStrategy } from '@nestjs/passport';
-import { ExtractJwt, Strategy } from 'passport-jwt';
-import { ConfigService } from '@nestjs/config';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { User } from '../../../common/entities';
+import { Injectable, UnauthorizedException } from "@nestjs/common";
+import { PassportStrategy } from "@nestjs/passport";
+import { ExtractJwt, Strategy } from "passport-jwt";
+import { ConfigService } from "@nestjs/config";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { User } from "../../../common/entities";
 
 export interface JwtPayload {
   sub: string;
@@ -22,22 +22,27 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('JWT_SECRET'),
+      secretOrKey: configService.get<string>("JWT_SECRET"),
     });
   }
 
   async validate(payload: JwtPayload): Promise<User> {
     const user = await this.userRepository.findOne({
       where: { id: payload.sub },
-      relations: ['userRoles', 'userRoles.role', 'userRoles.role.rolePermissions', 'userRoles.role.rolePermissions.permission'],
+      relations: [
+        "userRoles",
+        "userRoles.role",
+        "userRoles.role.rolePermissions",
+        "userRoles.role.rolePermissions.permission",
+      ],
     });
 
     if (!user) {
-      throw new UnauthorizedException('User not found');
+      throw new UnauthorizedException("User not found");
     }
 
-    if (user.status !== 'active') {
-      throw new UnauthorizedException('User account is not active');
+    if (user.status !== "active") {
+      throw new UnauthorizedException("User account is not active");
     }
 
     return user;

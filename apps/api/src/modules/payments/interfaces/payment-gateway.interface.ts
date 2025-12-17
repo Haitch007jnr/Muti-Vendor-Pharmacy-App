@@ -1,14 +1,14 @@
 export enum PaymentGateway {
-  PAYSTACK = 'paystack',
-  MONNIFY = 'monnify',
+  PAYSTACK = "paystack",
+  MONNIFY = "monnify",
 }
 
 export enum PaymentStatus {
-  PENDING = 'pending',
-  PROCESSING = 'processing',
-  COMPLETED = 'completed',
-  FAILED = 'failed',
-  REFUNDED = 'refunded',
+  PENDING = "pending",
+  PROCESSING = "processing",
+  COMPLETED = "completed",
+  FAILED = "failed",
+  REFUNDED = "refunded",
 }
 
 export interface InitializePaymentRequest {

@@ -7,39 +7,39 @@ import {
   OneToMany,
   ManyToOne,
   JoinColumn,
-} from 'typeorm';
-import { RolePermission } from './role-permission.entity';
-import { UserRole } from './user-role.entity';
-import { Vendor } from './vendor.entity';
+} from "typeorm";
+import { RolePermission } from "./role-permission.entity";
+import { UserRole } from "./user-role.entity";
+import { Vendor } from "./vendor.entity";
 
-@Entity('roles')
+@Entity("roles")
 export class Role {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Column({ unique: true, length: 50 })
   name: string;
 
-  @Column({ name: 'display_name', length: 100 })
+  @Column({ name: "display_name", length: 100 })
   displayName: string;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: "text", nullable: true })
   description: string;
 
-  @Column({ name: 'is_system', default: false })
+  @Column({ name: "is_system", default: false })
   isSystem: boolean;
 
-  @Column({ name: 'vendor_id', type: 'uuid', nullable: true })
+  @Column({ name: "vendor_id", type: "uuid", nullable: true })
   vendorId: string;
 
   @ManyToOne(() => Vendor, { nullable: true })
-  @JoinColumn({ name: 'vendor_id' })
+  @JoinColumn({ name: "vendor_id" })
   vendor: Vendor;
 
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn({ name: "created_at" })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updated_at' })
+  @UpdateDateColumn({ name: "updated_at" })
   updatedAt: Date;
 
   @OneToMany(() => RolePermission, (rolePermission) => rolePermission.role)

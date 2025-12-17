@@ -1,8 +1,13 @@
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-import { User } from '../../../common/entities';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+} from "@nestjs/common";
+import { Reflector } from "@nestjs/core";
+import { User } from "../../../common/entities";
 
-export const PERMISSIONS_KEY = 'permissions';
+export const PERMISSIONS_KEY = "permissions";
 
 @Injectable()
 export class PermissionsGuard implements CanActivate {
@@ -22,7 +27,7 @@ export class PermissionsGuard implements CanActivate {
     const user: User = request.user;
 
     if (!user) {
-      throw new ForbiddenException('User not authenticated');
+      throw new ForbiddenException("User not authenticated");
     }
 
     // Extract user permissions from roles
@@ -35,7 +40,7 @@ export class PermissionsGuard implements CanActivate {
 
     if (!hasPermission) {
       throw new ForbiddenException(
-        `User does not have required permissions: ${requiredPermissions.join(', ')}`,
+        `User does not have required permissions: ${requiredPermissions.join(", ")}`,
       );
     }
 

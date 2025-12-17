@@ -1,9 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Supplier } from './entities/supplier.entity';
-import { CreateSupplierDto } from './dto/create-supplier.dto';
-import { UpdateSupplierDto } from './dto/update-supplier.dto';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { Supplier } from "./entities/supplier.entity";
+import { CreateSupplierDto } from "./dto/create-supplier.dto";
+import { UpdateSupplierDto } from "./dto/update-supplier.dto";
 
 @Injectable()
 export class SuppliersService {
@@ -30,7 +30,7 @@ export class SuppliersService {
 
     return await this.supplierRepository.find({
       where,
-      order: { name: 'ASC' },
+      order: { name: "ASC" },
     });
   }
 
@@ -44,7 +44,10 @@ export class SuppliersService {
     return supplier;
   }
 
-  async update(id: string, updateSupplierDto: UpdateSupplierDto): Promise<Supplier> {
+  async update(
+    id: string,
+    updateSupplierDto: UpdateSupplierDto,
+  ): Promise<Supplier> {
     const supplier = await this.findOne(id);
     Object.assign(supplier, updateSupplierDto);
     return await this.supplierRepository.save(supplier);
@@ -55,7 +58,9 @@ export class SuppliersService {
     await this.supplierRepository.remove(supplier);
   }
 
-  async importSuppliers(suppliers: CreateSupplierDto[]): Promise<{ success: number; failed: number }> {
+  async importSuppliers(
+    suppliers: CreateSupplierDto[],
+  ): Promise<{ success: number; failed: number }> {
     let success = 0;
     let failed = 0;
 

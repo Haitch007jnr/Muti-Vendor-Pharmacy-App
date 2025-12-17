@@ -1,7 +1,10 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
-import { PaystackService } from '../gateways/paystack.service';
-import { MonnifyService } from '../gateways/monnify.service';
-import { IPaymentGateway, PaymentGateway } from '../interfaces/payment-gateway.interface';
+import { Injectable, BadRequestException } from "@nestjs/common";
+import { PaystackService } from "../gateways/paystack.service";
+import { MonnifyService } from "../gateways/monnify.service";
+import {
+  IPaymentGateway,
+  PaymentGateway,
+} from "../interfaces/payment-gateway.interface";
 
 @Injectable()
 export class PaymentGatewayFactory {
@@ -17,7 +20,9 @@ export class PaymentGatewayFactory {
       case PaymentGateway.MONNIFY:
         return this.monnifyService;
       default:
-        throw new BadRequestException(`Unsupported payment gateway: ${gateway}`);
+        throw new BadRequestException(
+          `Unsupported payment gateway: ${gateway}`,
+        );
     }
   }
 }

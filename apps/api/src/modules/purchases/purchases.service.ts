@@ -1,10 +1,19 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
-import { Purchase, PurchaseItem, PurchaseStatus, PaymentStatus } from './entities/purchase.entity';
-import { CreatePurchaseDto } from './dto/create-purchase.dto';
-import { UpdatePurchaseDto } from './dto/update-purchase.dto';
-import { QueryPurchaseDto } from './dto/query-purchase.dto';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository, Between, LessThanOrEqual, MoreThanOrEqual } from "typeorm";
+import {
+  Purchase,
+  PurchaseItem,
+  PurchaseStatus,
+  PaymentStatus,
+} from "./entities/purchase.entity";
+import { CreatePurchaseDto } from "./dto/create-purchase.dto";
+import { UpdatePurchaseDto } from "./dto/update-purchase.dto";
+import { QueryPurchaseDto } from "./dto/query-purchase.dto";
 
 @Injectable()
 export class PurchasesService {
@@ -15,9 +24,14 @@ export class PurchasesService {
     private readonly purchaseItemRepository: Repository<PurchaseItem>,
   ) {}
 
-  async create(createPurchaseDto: CreatePurchaseDto, userId: string): Promise<Purchase> {
+  async create(
+    createPurchaseDto: CreatePurchaseDto,
+    userId: string,
+  ): Promise<Purchase> {
     // Generate purchase number
-    const purchaseNumber = await this.generatePurchaseNumber(createPurchaseDto.vendorId);
+    const purchaseNumber = await this.generatePurchaseNumber(
+      createPurchaseDto.vendorId,
+    );
 
     // Calculate totals
     let subtotal = 0;
@@ -77,8 +91,19 @@ export class PurchasesService {
     return this.findOne(savedPurchase.id);
   }
 
-  async findAll(query: QueryPurchaseDto): Promise<{ data: Purchase[]; total: number; page: number; limit: number }> {
-    const { vendorId, supplierId, status, paymentStatus, startDate, endDate, page = 1, limit = 10 } = query;
+  async findAll(
+    query: QueryPurchaseDto,
+  ): Promise<{ data: Purchase[]; total: number; page: number; limit: number }> {
+    const {
+      vendorId,
+      supplierId,
+      status,
+      paymentStatus,
+      startDate,
+      endDate,
+      page = 1,
+      limit = 10,
+    } = query;
     const skip = (page - 1) * limit;
 
     const where: any = {};
@@ -109,10 +134,10 @@ export class PurchasesService {
 
     const [data, total] = await this.purchaseRepository.findAndCount({
       where,
-      relations: ['items'],
+      relations: ["items"],
       skip,
       take: limit,
-      order: { createdAt: 'DESC' },
+      order: { createdAt: "DESC" },
     });
 
     return {
@@ -126,7 +151,7 @@ export class PurchasesService {
   async findOne(id: string): Promise<Purchase> {
     const purchase = await this.purchaseRepository.findOne({
       where: { id },
-      relations: ['items'],
+      relations: ["items"],
     });
 
     if (!purchase) {
@@ -136,12 +161,19 @@ export class PurchasesService {
     return purchase;
   }
 
-  async update(id: string, updatePurchaseDto: UpdatePurchaseDto, userId?: string): Promise<Purchase> {
+  async update(
+    id: string,
+    updatePurchaseDto: UpdatePurchaseDto,
+    userId?: string,
+  ): Promise<Purchase> {
     const purchase = await this.findOne(id);
 
     // Handle status transitions
     if (updatePurchaseDto.status) {
-      await this.validateStatusTransition(purchase.status, updatePurchaseDto.status);
+      await this.validateStatusTransition(
+        purchase.status,
+        updatePurchaseDto.status,
+      );
 
       if (updatePurchaseDto.status === PurchaseStatus.APPROVED) {
         purchase.approvedBy = userId;
@@ -189,7 +221,8 @@ export class PurchasesService {
 
       await this.purchaseItemRepository.save(items);
 
-      const shippingCost = updatePurchaseDto.shippingCost || purchase.shippingCost;
+      const shippingCost =
+        updatePurchaseDto.shippingCost || purchase.shippingCost;
       purchase.subtotal = subtotal;
       purchase.discountAmount = totalDiscount;
       purchase.taxAmount = totalTax;
@@ -208,7 +241,7 @@ export class PurchasesService {
     const purchase = await this.findOne(id);
 
     if (purchase.status === PurchaseStatus.RECEIVED) {
-      throw new BadRequestException('Cannot delete a received purchase');
+      throw new BadRequestException("Cannot delete a received purchase");
     }
 
     await this.purchaseRepository.remove(purchase);
@@ -218,7 +251,7 @@ export class PurchasesService {
     const purchase = await this.findOne(id);
 
     if (purchase.status !== PurchaseStatus.PENDING) {
-      throw new BadRequestException('Only pending purchases can be approved');
+      throw new BadRequestException("Only pending purchases can be approved");
     }
 
     purchase.status = PurchaseStatus.APPROVED;
@@ -228,11 +261,15 @@ export class PurchasesService {
     return await this.purchaseRepository.save(purchase);
   }
 
-  async receivePurchase(id: string, userId: string, receivedItems?: Array<{ itemId: string; quantity: number }>): Promise<Purchase> {
+  async receivePurchase(
+    id: string,
+    userId: string,
+    receivedItems?: Array<{ itemId: string; quantity: number }>,
+  ): Promise<Purchase> {
     const purchase = await this.findOne(id);
 
     if (purchase.status !== PurchaseStatus.APPROVED) {
-      throw new BadRequestException('Only approved purchases can be received');
+      throw new BadRequestException("Only approved purchases can be received");
     }
 
     // Update received quantities if provided
@@ -259,7 +296,7 @@ export class PurchasesService {
     const purchase = await this.findOne(id);
 
     if (purchase.status === PurchaseStatus.RECEIVED) {
-      throw new BadRequestException('Cannot cancel a received purchase');
+      throw new BadRequestException("Cannot cancel a received purchase");
     }
 
     purchase.status = PurchaseStatus.CANCELLED;
@@ -267,32 +304,46 @@ export class PurchasesService {
     return await this.purchaseRepository.save(purchase);
   }
 
-  async getAveragePurchasePrice(productId: string, vendorId: string): Promise<number> {
+  async getAveragePurchasePrice(
+    productId: string,
+    vendorId: string,
+  ): Promise<number> {
     const result = await this.purchaseItemRepository
-      .createQueryBuilder('item')
-      .innerJoin('item.purchase', 'purchase')
-      .select('AVG(item.unit_cost)', 'avgPrice')
-      .where('item.productId = :productId', { productId })
-      .andWhere('purchase.vendorId = :vendorId', { vendorId })
-      .andWhere('purchase.status = :status', { status: PurchaseStatus.RECEIVED })
+      .createQueryBuilder("item")
+      .innerJoin("item.purchase", "purchase")
+      .select("AVG(item.unit_cost)", "avgPrice")
+      .where("item.productId = :productId", { productId })
+      .andWhere("purchase.vendorId = :vendorId", { vendorId })
+      .andWhere("purchase.status = :status", {
+        status: PurchaseStatus.RECEIVED,
+      })
       .getRawOne();
 
     return Number(result?.avgPrice || 0);
   }
 
-  async getTotalPurchases(vendorId: string, startDate?: string, endDate?: string): Promise<number> {
+  async getTotalPurchases(
+    vendorId: string,
+    startDate?: string,
+    endDate?: string,
+  ): Promise<number> {
     const query = this.purchaseRepository
-      .createQueryBuilder('purchase')
-      .select('SUM(purchase.total_amount)', 'total')
-      .where('purchase.vendorId = :vendorId', { vendorId })
-      .andWhere('purchase.status != :status', { status: PurchaseStatus.CANCELLED });
+      .createQueryBuilder("purchase")
+      .select("SUM(purchase.total_amount)", "total")
+      .where("purchase.vendorId = :vendorId", { vendorId })
+      .andWhere("purchase.status != :status", {
+        status: PurchaseStatus.CANCELLED,
+      });
 
     if (startDate && endDate) {
-      query.andWhere('purchase.purchase_date BETWEEN :startDate AND :endDate', { startDate, endDate });
+      query.andWhere("purchase.purchase_date BETWEEN :startDate AND :endDate", {
+        startDate,
+        endDate,
+      });
     } else if (startDate) {
-      query.andWhere('purchase.purchase_date >= :startDate', { startDate });
+      query.andWhere("purchase.purchase_date >= :startDate", { startDate });
     } else if (endDate) {
-      query.andWhere('purchase.purchase_date <= :endDate', { endDate });
+      query.andWhere("purchase.purchase_date <= :endDate", { endDate });
     }
 
     const result = await query.getRawOne();
@@ -302,22 +353,34 @@ export class PurchasesService {
   private async generatePurchaseNumber(vendorId: string): Promise<string> {
     const date = new Date();
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, "0");
 
     const count = await this.purchaseRepository.count({
       where: { vendorId },
     });
 
-    const sequence = String(count + 1).padStart(5, '0');
+    const sequence = String(count + 1).padStart(5, "0");
 
     return `PO-${year}${month}-${sequence}`;
   }
 
-  private async validateStatusTransition(currentStatus: PurchaseStatus, newStatus: PurchaseStatus): Promise<void> {
+  private async validateStatusTransition(
+    currentStatus: PurchaseStatus,
+    newStatus: PurchaseStatus,
+  ): Promise<void> {
     const validTransitions: Record<PurchaseStatus, PurchaseStatus[]> = {
-      [PurchaseStatus.DRAFT]: [PurchaseStatus.PENDING, PurchaseStatus.CANCELLED],
-      [PurchaseStatus.PENDING]: [PurchaseStatus.APPROVED, PurchaseStatus.CANCELLED],
-      [PurchaseStatus.APPROVED]: [PurchaseStatus.RECEIVED, PurchaseStatus.CANCELLED],
+      [PurchaseStatus.DRAFT]: [
+        PurchaseStatus.PENDING,
+        PurchaseStatus.CANCELLED,
+      ],
+      [PurchaseStatus.PENDING]: [
+        PurchaseStatus.APPROVED,
+        PurchaseStatus.CANCELLED,
+      ],
+      [PurchaseStatus.APPROVED]: [
+        PurchaseStatus.RECEIVED,
+        PurchaseStatus.CANCELLED,
+      ],
       [PurchaseStatus.RECEIVED]: [],
       [PurchaseStatus.CANCELLED]: [],
     };

@@ -1,11 +1,23 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, LessThan, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
-import { Inventory, InventoryAdjustment, InventoryAdjustmentType, InventoryAdjustmentStatus } from './entities/inventory.entity';
-import { CreateInventoryDto } from './dto/create-inventory.dto';
-import { UpdateInventoryDto } from './dto/update-inventory.dto';
-import { CreateAdjustmentDto } from './dto/create-adjustment.dto';
-import { QueryInventoryDto } from './dto/query-inventory.dto';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import {
+  Repository,
+  LessThan,
+} from "typeorm";
+import {
+  Inventory,
+  InventoryAdjustment,
+  InventoryAdjustmentType,
+  InventoryAdjustmentStatus,
+} from "./entities/inventory.entity";
+import { CreateInventoryDto } from "./dto/create-inventory.dto";
+import { UpdateInventoryDto } from "./dto/update-inventory.dto";
+import { CreateAdjustmentDto } from "./dto/create-adjustment.dto";
+import { QueryInventoryDto } from "./dto/query-inventory.dto";
 
 @Injectable()
 export class InventoryService {
@@ -26,46 +38,75 @@ export class InventoryService {
     });
 
     if (existing) {
-      throw new BadRequestException('Inventory already exists for this product and vendor');
+      throw new BadRequestException(
+        "Inventory already exists for this product and vendor",
+      );
     }
 
-    const inventory = this.inventoryRepository.create({
-      ...createInventoryDto,
-      lastRestocked: createInventoryDto.quantityAvailable > 0 ? new Date() : null,
-    });
+    const inventory = this.inventoryRepository.create(createInventoryDto);
+
+    // Set lastRestocked if initial quantity is provided
+    if (
+      createInventoryDto.quantityAvailable &&
+      createInventoryDto.quantityAvailable > 0
+    ) {
+      inventory.lastRestocked = new Date();
+    }
+
     return await this.inventoryRepository.save(inventory);
   }
 
-  async findAll(query: QueryInventoryDto): Promise<{ data: Inventory[]; total: number; page: number; limit: number }> {
-    const { vendorId, productId, lowStock, expired, expiringSoonDays, page = 1, limit = 20 } = query;
-    const queryBuilder = this.inventoryRepository.createQueryBuilder('inventory');
+  async findAll(query: QueryInventoryDto): Promise<{
+    data: Inventory[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
+    const {
+      vendorId,
+      productId,
+      lowStock,
+      expired,
+      expiringSoonDays,
+      page = 1,
+      limit = 20,
+    } = query;
+    const queryBuilder =
+      this.inventoryRepository.createQueryBuilder("inventory");
 
     if (vendorId) {
-      queryBuilder.andWhere('inventory.vendor_id = :vendorId', { vendorId });
+      queryBuilder.andWhere("inventory.vendor_id = :vendorId", { vendorId });
     }
 
     if (productId) {
-      queryBuilder.andWhere('inventory.product_id = :productId', { productId });
+      queryBuilder.andWhere("inventory.product_id = :productId", { productId });
     }
 
     if (lowStock) {
-      queryBuilder.andWhere('inventory.quantity_available <= inventory.reorder_level');
+      queryBuilder.andWhere(
+        "inventory.quantity_available <= inventory.reorder_level",
+      );
     }
 
     if (expired) {
-      queryBuilder.andWhere('inventory.expiry_date < :now', { now: new Date() });
+      queryBuilder.andWhere("inventory.expiry_date < :now", {
+        now: new Date(),
+      });
     }
 
     if (expiringSoonDays) {
       const futureDate = new Date();
       futureDate.setDate(futureDate.getDate() + expiringSoonDays);
-      queryBuilder.andWhere('inventory.expiry_date BETWEEN :now AND :futureDate', {
-        now: new Date(),
-        futureDate,
-      });
+      queryBuilder.andWhere(
+        "inventory.expiry_date BETWEEN :now AND :futureDate",
+        {
+          now: new Date(),
+          futureDate,
+        },
+      );
     }
 
-    queryBuilder.orderBy('inventory.created_at', 'DESC');
+    queryBuilder.orderBy("inventory.created_at", "DESC");
     queryBuilder.skip((page - 1) * limit).take(limit);
 
     const [data, total] = await queryBuilder.getManyAndCount();
@@ -83,13 +124,19 @@ export class InventoryService {
     return inventory;
   }
 
-  async findByProductAndVendor(productId: string, vendorId: string): Promise<Inventory | null> {
+  async findByProductAndVendor(
+    productId: string,
+    vendorId: string,
+  ): Promise<Inventory | null> {
     return await this.inventoryRepository.findOne({
       where: { productId, vendorId },
     });
   }
 
-  async update(id: string, updateInventoryDto: UpdateInventoryDto): Promise<Inventory> {
+  async update(
+    id: string,
+    updateInventoryDto: UpdateInventoryDto,
+  ): Promise<Inventory> {
     const inventory = await this.findOne(id);
     Object.assign(inventory, updateInventoryDto);
     return await this.inventoryRepository.save(inventory);
@@ -102,10 +149,10 @@ export class InventoryService {
 
   async getLowStockItems(vendorId: string): Promise<Inventory[]> {
     return await this.inventoryRepository
-      .createQueryBuilder('inventory')
-      .where('inventory.vendor_id = :vendorId', { vendorId })
-      .andWhere('inventory.quantity_available <= inventory.reorder_level')
-      .orderBy('inventory.quantity_available', 'ASC')
+      .createQueryBuilder("inventory")
+      .where("inventory.vendor_id = :vendorId", { vendorId })
+      .andWhere("inventory.quantity_available <= inventory.reorder_level")
+      .orderBy("inventory.quantity_available", "ASC")
       .getMany();
   }
 
@@ -115,28 +162,34 @@ export class InventoryService {
         vendorId,
         expiryDate: LessThan(new Date()),
       },
-      order: { expiryDate: 'ASC' },
+      order: { expiryDate: "ASC" },
     });
   }
 
-  async getExpiringSoonItems(vendorId: string, days: number = 30): Promise<Inventory[]> {
+  async getExpiringSoonItems(
+    vendorId: string,
+    days: number = 30,
+  ): Promise<Inventory[]> {
     const futureDate = new Date();
     futureDate.setDate(futureDate.getDate() + days);
 
     return await this.inventoryRepository
-      .createQueryBuilder('inventory')
-      .where('inventory.vendor_id = :vendorId', { vendorId })
-      .andWhere('inventory.expiry_date BETWEEN :now AND :futureDate', {
+      .createQueryBuilder("inventory")
+      .where("inventory.vendor_id = :vendorId", { vendorId })
+      .andWhere("inventory.expiry_date BETWEEN :now AND :futureDate", {
         now: new Date(),
         futureDate,
       })
-      .orderBy('inventory.expiry_date', 'ASC')
+      .orderBy("inventory.expiry_date", "ASC")
       .getMany();
   }
 
-  async adjustInventory(createAdjustmentDto: CreateAdjustmentDto, userId: string): Promise<InventoryAdjustment> {
+  async adjustInventory(
+    createAdjustmentDto: CreateAdjustmentDto,
+    userId: string,
+  ): Promise<InventoryAdjustment> {
     const inventory = await this.findOne(createAdjustmentDto.inventoryId);
-    
+
     const quantityBefore = inventory.quantityAvailable;
     let quantityAfter = quantityBefore;
 
@@ -151,7 +204,9 @@ export class InventoryService {
       case InventoryAdjustmentType.EXPIRED:
         quantityAfter = quantityBefore - createAdjustmentDto.quantity;
         if (quantityAfter < 0) {
-          throw new BadRequestException('Adjustment would result in negative inventory');
+          throw new BadRequestException(
+            "Adjustment would result in negative inventory",
+          );
         }
         break;
       case InventoryAdjustmentType.CORRECTION:
@@ -174,7 +229,12 @@ export class InventoryService {
 
     // Update inventory
     inventory.quantityAvailable = quantityAfter;
-    if ([InventoryAdjustmentType.INCREASE, InventoryAdjustmentType.RETURN].includes(createAdjustmentDto.adjustmentType)) {
+    if (
+      [
+        InventoryAdjustmentType.INCREASE,
+        InventoryAdjustmentType.RETURN,
+      ].includes(createAdjustmentDto.adjustmentType)
+    ) {
       inventory.lastRestocked = new Date();
     }
     await this.inventoryRepository.save(inventory);
@@ -182,18 +242,26 @@ export class InventoryService {
     return adjustment;
   }
 
-  async getAdjustmentHistory(inventoryId: string): Promise<InventoryAdjustment[]> {
+  async getAdjustmentHistory(
+    inventoryId: string,
+  ): Promise<InventoryAdjustment[]> {
     return await this.adjustmentRepository.find({
       where: { inventoryId },
-      order: { createdAt: 'DESC' },
+      order: { createdAt: "DESC" },
     });
   }
 
-  async incrementStock(productId: string, vendorId: string, quantity: number): Promise<Inventory> {
+  async incrementStock(
+    productId: string,
+    vendorId: string,
+    quantity: number,
+  ): Promise<Inventory> {
     const inventory = await this.findByProductAndVendor(productId, vendorId);
-    
+
     if (!inventory) {
-      throw new NotFoundException('Inventory not found for this product and vendor');
+      throw new NotFoundException(
+        "Inventory not found for this product and vendor",
+      );
     }
 
     inventory.quantityAvailable += quantity;
@@ -201,30 +269,42 @@ export class InventoryService {
     return await this.inventoryRepository.save(inventory);
   }
 
-  async decrementStock(productId: string, vendorId: string, quantity: number): Promise<Inventory> {
+  async decrementStock(
+    productId: string,
+    vendorId: string,
+    quantity: number,
+  ): Promise<Inventory> {
     const inventory = await this.findByProductAndVendor(productId, vendorId);
-    
+
     if (!inventory) {
-      throw new NotFoundException('Inventory not found for this product and vendor');
+      throw new NotFoundException(
+        "Inventory not found for this product and vendor",
+      );
     }
 
     if (inventory.quantityAvailable < quantity) {
-      throw new BadRequestException('Insufficient stock available');
+      throw new BadRequestException("Insufficient stock available");
     }
 
     inventory.quantityAvailable -= quantity;
     return await this.inventoryRepository.save(inventory);
   }
 
-  async reserveStock(productId: string, vendorId: string, quantity: number): Promise<Inventory> {
+  async reserveStock(
+    productId: string,
+    vendorId: string,
+    quantity: number,
+  ): Promise<Inventory> {
     const inventory = await this.findByProductAndVendor(productId, vendorId);
-    
+
     if (!inventory) {
-      throw new NotFoundException('Inventory not found for this product and vendor');
+      throw new NotFoundException(
+        "Inventory not found for this product and vendor",
+      );
     }
 
     if (inventory.quantityAvailable < quantity) {
-      throw new BadRequestException('Insufficient stock available to reserve');
+      throw new BadRequestException("Insufficient stock available to reserve");
     }
 
     inventory.quantityAvailable -= quantity;
@@ -232,15 +312,21 @@ export class InventoryService {
     return await this.inventoryRepository.save(inventory);
   }
 
-  async releaseReservedStock(productId: string, vendorId: string, quantity: number): Promise<Inventory> {
+  async releaseReservedStock(
+    productId: string,
+    vendorId: string,
+    quantity: number,
+  ): Promise<Inventory> {
     const inventory = await this.findByProductAndVendor(productId, vendorId);
-    
+
     if (!inventory) {
-      throw new NotFoundException('Inventory not found for this product and vendor');
+      throw new NotFoundException(
+        "Inventory not found for this product and vendor",
+      );
     }
 
     if (inventory.quantityReserved < quantity) {
-      throw new BadRequestException('Insufficient reserved stock');
+      throw new BadRequestException("Insufficient reserved stock");
     }
 
     inventory.quantityReserved -= quantity;

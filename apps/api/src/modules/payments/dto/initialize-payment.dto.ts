@@ -1,6 +1,14 @@
-import { IsEnum, IsNumber, IsString, IsEmail, IsOptional, IsObject, Min } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
-import { PaymentGateway } from '../interfaces/payment-gateway.interface';
+import {
+  IsEnum,
+  IsNumber,
+  IsString,
+  IsEmail,
+  IsOptional,
+  IsObject,
+  Min,
+} from "class-validator";
+import { ApiProperty } from "@nestjs/swagger";
+import { PaymentGateway } from "../interfaces/payment-gateway.interface";
 
 export class InitializePaymentDto {
   @ApiProperty({ enum: PaymentGateway, example: PaymentGateway.PAYSTACK })
@@ -12,11 +20,11 @@ export class InitializePaymentDto {
   @Min(100)
   amount: number;
 
-  @ApiProperty({ example: 'NGN' })
+  @ApiProperty({ example: "NGN" })
   @IsString()
   currency: string;
 
-  @ApiProperty({ example: 'customer@example.com' })
+  @ApiProperty({ example: "customer@example.com" })
   @IsEmail()
   email: string;
 

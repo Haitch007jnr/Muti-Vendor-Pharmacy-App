@@ -1,9 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Employee } from './entities/employee.entity';
-import { CreateEmployeeDto } from './dto/create-employee.dto';
-import { UpdateEmployeeDto } from './dto/update-employee.dto';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { Employee } from "./entities/employee.entity";
+import { CreateEmployeeDto } from "./dto/create-employee.dto";
+import { UpdateEmployeeDto } from "./dto/update-employee.dto";
 
 @Injectable()
 export class EmployeesService {
@@ -17,7 +17,11 @@ export class EmployeesService {
     return await this.employeeRepository.save(employee);
   }
 
-  async findAll(vendorId?: string, departmentId?: string, isActive?: boolean): Promise<Employee[]> {
+  async findAll(
+    vendorId?: string,
+    departmentId?: string,
+    isActive?: boolean,
+  ): Promise<Employee[]> {
     const where: any = {};
 
     if (vendorId) {
@@ -34,15 +38,15 @@ export class EmployeesService {
 
     return await this.employeeRepository.find({
       where,
-      relations: ['department'],
-      order: { createdAt: 'DESC' },
+      relations: ["department"],
+      order: { createdAt: "DESC" },
     });
   }
 
   async findOne(id: string): Promise<Employee> {
     const employee = await this.employeeRepository.findOne({
       where: { id },
-      relations: ['department'],
+      relations: ["department"],
     });
 
     if (!employee) {
@@ -55,11 +59,14 @@ export class EmployeesService {
   async findByUserId(userId: string): Promise<Employee | null> {
     return await this.employeeRepository.findOne({
       where: { userId },
-      relations: ['department'],
+      relations: ["department"],
     });
   }
 
-  async update(id: string, updateEmployeeDto: UpdateEmployeeDto): Promise<Employee> {
+  async update(
+    id: string,
+    updateEmployeeDto: UpdateEmployeeDto,
+  ): Promise<Employee> {
     const employee = await this.findOne(id);
     Object.assign(employee, updateEmployeeDto);
     return await this.employeeRepository.save(employee);
@@ -73,7 +80,7 @@ export class EmployeesService {
   async getEmployeesByDepartment(departmentId: string): Promise<Employee[]> {
     return await this.employeeRepository.find({
       where: { departmentId, isActive: true },
-      relations: ['department'],
+      relations: ["department"],
     });
   }
 

@@ -1,8 +1,21 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Like, In } from 'typeorm';
-import { PosSession, PosTransaction, PosSessionStatus, PaymentMethod } from './entities/pos.entity';
-import { CreatePosSessionDto, CreatePosTransactionDto, ClosePosSessionDto } from './dto/pos.dto';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository, Like, In } from "typeorm";
+import {
+  PosSession,
+  PosTransaction,
+  PosSessionStatus,
+  PaymentMethod,
+} from "./entities/pos.entity";
+import {
+  CreatePosSessionDto,
+  CreatePosTransactionDto,
+  ClosePosSessionDto,
+} from "./dto/pos.dto";
 
 @Injectable()
 export class PosService {
@@ -14,7 +27,10 @@ export class PosService {
   ) {}
 
   // POS Session Management
-  async openSession(createPosSessionDto: CreatePosSessionDto, cashierId: string): Promise<PosSession> {
+  async openSession(
+    createPosSessionDto: CreatePosSessionDto,
+    cashierId: string,
+  ): Promise<PosSession> {
     // Check if there's already an open session for this cashier
     const existingSession = await this.posSessionRepository.findOne({
       where: {
@@ -24,10 +40,12 @@ export class PosService {
     });
 
     if (existingSession) {
-      throw new BadRequestException('Cashier already has an open session');
+      throw new BadRequestException("Cashier already has an open session");
     }
 
-    const sessionNumber = await this.generateSessionNumber(createPosSessionDto.vendorId);
+    const sessionNumber = await this.generateSessionNumber(
+      createPosSessionDto.vendorId,
+    );
 
     const session = this.posSessionRepository.create({
       ...createPosSessionDto,
@@ -40,11 +58,14 @@ export class PosService {
     return await this.posSessionRepository.save(session);
   }
 
-  async closeSession(id: string, closePosSessionDto: ClosePosSessionDto): Promise<PosSession> {
+  async closeSession(
+    id: string,
+    closePosSessionDto: ClosePosSessionDto,
+  ): Promise<PosSession> {
     const session = await this.findSession(id);
 
     if (session.status === PosSessionStatus.CLOSED) {
-      throw new BadRequestException('Session is already closed');
+      throw new BadRequestException("Session is already closed");
     }
 
     session.status = PosSessionStatus.CLOSED;
@@ -62,7 +83,7 @@ export class PosService {
   async findSession(id: string): Promise<PosSession> {
     const session = await this.posSessionRepository.findOne({
       where: { id },
-      relations: ['transactions'],
+      relations: ["transactions"],
     });
 
     if (!session) {
@@ -78,14 +99,17 @@ export class PosService {
         vendorId,
         status: PosSessionStatus.OPEN,
       },
-      order: { openedAt: 'DESC' },
+      order: { openedAt: "DESC" },
     });
   }
 
-  async getSessionsByCashier(cashierId: string, limit: number = 10): Promise<PosSession[]> {
+  async getSessionsByCashier(
+    cashierId: string,
+    limit: number = 10,
+  ): Promise<PosSession[]> {
     return await this.posSessionRepository.find({
       where: { cashierId },
-      order: { openedAt: 'DESC' },
+      order: { openedAt: "DESC" },
       take: limit,
     });
   }
@@ -98,7 +122,9 @@ export class PosService {
     const session = await this.findSession(createPosTransactionDto.sessionId);
 
     if (session.status === PosSessionStatus.CLOSED) {
-      throw new BadRequestException('Cannot create transaction in a closed session');
+      throw new BadRequestException(
+        "Cannot create transaction in a closed session",
+      );
     }
 
     // Calculate totals
@@ -108,8 +134,12 @@ export class PosService {
 
     createPosTransactionDto.items.forEach((item) => {
       const itemSubtotal = item.quantity * item.unitPrice;
-      const itemDiscount = item.discountPercentage ? (itemSubtotal * item.discountPercentage) / 100 : 0;
-      const itemTax = item.taxPercentage ? ((itemSubtotal - itemDiscount) * item.taxPercentage) / 100 : 0;
+      const itemDiscount = item.discountPercentage
+        ? (itemSubtotal * item.discountPercentage) / 100
+        : 0;
+      const itemTax = item.taxPercentage
+        ? ((itemSubtotal - itemDiscount) * item.taxPercentage) / 100
+        : 0;
 
       subtotal += itemSubtotal;
       totalDiscount += itemDiscount;
@@ -120,10 +150,12 @@ export class PosService {
     const changeAmount = createPosTransactionDto.amountPaid - totalAmount;
 
     if (changeAmount < 0) {
-      throw new BadRequestException('Amount paid is less than total amount');
+      throw new BadRequestException("Amount paid is less than total amount");
     }
 
-    const transactionNumber = await this.generateTransactionNumber(session.vendorId);
+    const transactionNumber = await this.generateTransactionNumber(
+      session.vendorId,
+    );
 
     const transaction = this.posTransactionRepository.create({
       transactionNumber,
@@ -141,10 +173,15 @@ export class PosService {
       notes: createPosTransactionDto.notes,
     });
 
-    const savedTransaction = await this.posTransactionRepository.save(transaction);
+    const savedTransaction =
+      await this.posTransactionRepository.save(transaction);
 
     // Update session totals
-    await this.updateSessionTotals(session.id, totalAmount, createPosTransactionDto.paymentMethod);
+    await this.updateSessionTotals(
+      session.id,
+      totalAmount,
+      createPosTransactionDto.paymentMethod,
+    );
 
     // TODO: Create corresponding sales record
     // TODO: Update inventory
@@ -167,7 +204,7 @@ export class PosService {
   async getSessionTransactions(sessionId: string): Promise<PosTransaction[]> {
     return await this.posTransactionRepository.find({
       where: { sessionId },
-      order: { createdAt: 'DESC' },
+      order: { createdAt: "DESC" },
     });
   }
 
@@ -186,7 +223,7 @@ export class PosService {
     // This would typically query the products table
     // For now, we'll return a placeholder that should be implemented with the products module
     // TODO: Integrate with products service to search by SKU, barcode, or name
-    
+
     // Example query structure (to be implemented with proper products repository)
     /*
     return await this.productsRepository.find({
@@ -199,7 +236,7 @@ export class PosService {
       relations: ['inventory'],
     });
     */
-    
+
     return [];
   }
 
@@ -232,11 +269,13 @@ export class PosService {
   private async generateSessionNumber(vendorId: string): Promise<string> {
     const date = new Date();
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
 
-    const count = await this.posSessionRepository.count({ where: { vendorId } });
-    const sequence = String(count + 1).padStart(4, '0');
+    const count = await this.posSessionRepository.count({
+      where: { vendorId },
+    });
+    const sequence = String(count + 1).padStart(4, "0");
 
     return `POS-${year}${month}${day}-${sequence}`;
   }
@@ -244,11 +283,13 @@ export class PosService {
   private async generateTransactionNumber(vendorId: string): Promise<string> {
     const date = new Date();
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
 
-    const count = await this.posTransactionRepository.count({ where: { vendorId } });
-    const sequence = String(count + 1).padStart(6, '0');
+    const count = await this.posTransactionRepository.count({
+      where: { vendorId },
+    });
+    const sequence = String(count + 1).padStart(6, "0");
 
     return `TXN-${year}${month}${day}-${sequence}`;
   }
@@ -270,7 +311,9 @@ export class PosService {
         openingBalance: session.openingBalance,
         closingBalance: session.closingBalance,
         expectedBalance: session.expectedBalance,
-        variance: session.closingBalance ? session.closingBalance - session.expectedBalance : 0,
+        variance: session.closingBalance
+          ? session.closingBalance - session.expectedBalance
+          : 0,
       },
     };
   }
