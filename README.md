@@ -95,6 +95,18 @@ Muti-Vendor-Pharmacy-App/
    - Vendor Portal: http://localhost:3001
    - API Documentation: http://localhost:4000/api/docs
 
+6. **Run mobile applications** (requires Expo CLI)
+   ```bash
+   # Customer App
+   cd apps/mobile-customer && npm start
+   
+   # Vendor App
+   cd apps/mobile-vendor && npm start
+   
+   # Delivery App
+   cd apps/mobile-delivery && npm start
+   ```
+
 ## 📋 Implementation Roadmap
 
 ### Phase 1: Core Infrastructure & Architecture ✅
@@ -142,9 +154,9 @@ Muti-Vendor-Pharmacy-App/
 - [x] Real-time dashboards
 
 ### Phase 9: Mobile Applications
-- [ ] Customer mobile app
-- [ ] Vendor mobile app
-- [ ] Delivery personnel app
+- [x] Customer mobile app
+- [x] Vendor mobile app
+- [x] Delivery personnel app
 
 ### Phase 10: Quality Assurance & Documentation
 - [ ] Testing (Unit, Integration, E2E)
@@ -160,6 +172,11 @@ npm run dev              # Start all apps in development mode
 npm run dev:api          # Start API only
 npm run dev:web-admin    # Start admin portal only
 npm run dev:web-vendor   # Start vendor portal only
+
+# Mobile Apps (requires Expo CLI)
+cd apps/mobile-customer && npm start   # Start customer app
+cd apps/mobile-vendor && npm start     # Start vendor app
+cd apps/mobile-delivery && npm start   # Start delivery app
 
 # Build
 npm run build            # Build all apps
