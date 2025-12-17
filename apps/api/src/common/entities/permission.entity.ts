@@ -4,21 +4,21 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   OneToMany,
-} from 'typeorm';
-import { RolePermission } from './role-permission.entity';
+} from "typeorm";
+import { RolePermission } from "./role-permission.entity";
 
-@Entity('permissions')
+@Entity("permissions")
 export class Permission {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Column({ unique: true, length: 100 })
   name: string;
 
-  @Column({ name: 'display_name', length: 150 })
+  @Column({ name: "display_name", length: 150 })
   displayName: string;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: "text", nullable: true })
   description: string;
 
   @Column({ length: 50 })
@@ -27,9 +27,12 @@ export class Permission {
   @Column({ length: 50 })
   action: string;
 
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn({ name: "created_at" })
   createdAt: Date;
 
-  @OneToMany(() => RolePermission, (rolePermission) => rolePermission.permission)
+  @OneToMany(
+    () => RolePermission,
+    (rolePermission) => rolePermission.permission,
+  )
   rolePermissions: RolePermission[];
 }

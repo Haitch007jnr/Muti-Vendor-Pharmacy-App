@@ -1,10 +1,26 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Between, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
-import { Sales, SalesItem, SalesStatus, PaymentStatus } from './entities/sales.entity';
-import { CreateSalesDto } from './dto/create-sales.dto';
-import { UpdateSalesDto } from './dto/update-sales.dto';
-import { QuerySalesDto } from './dto/query-sales.dto';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import {
+  Repository,
+  Between,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  Not,
+  IsNull,
+} from "typeorm";
+import {
+  Sales,
+  SalesItem,
+  SalesStatus,
+  PaymentStatus,
+} from "./entities/sales.entity";
+import { CreateSalesDto } from "./dto/create-sales.dto";
+import { UpdateSalesDto } from "./dto/update-sales.dto";
+import { QuerySalesDto } from "./dto/query-sales.dto";
 
 @Injectable()
 export class SalesService {
@@ -20,7 +36,9 @@ export class SalesService {
     const salesNumber = await this.generateSalesNumber(createSalesDto.vendorId);
 
     // Calculate totals
-    const { subtotal, totalDiscount, totalTax, items } = this.calculateTotals(createSalesDto.items);
+    const { subtotal, totalDiscount, totalTax, items } = this.calculateTotals(
+      createSalesDto.items,
+    );
     const totalAmount = subtotal - totalDiscount + totalTax;
 
     const sales = this.salesRepository.create({
@@ -38,21 +56,31 @@ export class SalesService {
 
     const savedSales = await this.salesRepository.save(sales);
 
-    // Save sales items
-    const salesItems = items.map((item) =>
-      this.salesItemRepository.create({
-        ...item,
-        salesId: savedSales.id,
-      }),
-    );
+    // Save sales items - flatten if needed and add salesId
+    const salesItemsToSave = items.map((item) => ({
+      ...item,
+      salesId: savedSales.id,
+    }));
 
-    await this.salesItemRepository.save(salesItems);
+    await this.salesItemRepository.save(salesItemsToSave);
 
     return this.findOne(savedSales.id);
   }
 
-  async findAll(query: QuerySalesDto): Promise<{ data: Sales[]; total: number; page: number; limit: number }> {
-    const { vendorId, clientId, customerId, status, paymentStatus, startDate, endDate, page = 1, limit = 10 } = query;
+  async findAll(
+    query: QuerySalesDto,
+  ): Promise<{ data: Sales[]; total: number; page: number; limit: number }> {
+    const {
+      vendorId,
+      clientId,
+      customerId,
+      status,
+      paymentStatus,
+      startDate,
+      endDate,
+      page = 1,
+      limit = 10,
+    } = query;
     const skip = (page - 1) * limit;
 
     const where: any = {};
@@ -87,10 +115,10 @@ export class SalesService {
 
     const [data, total] = await this.salesRepository.findAndCount({
       where,
-      relations: ['items'],
+      relations: ["items"],
       skip,
       take: limit,
-      order: { createdAt: 'DESC' },
+      order: { createdAt: "DESC" },
     });
 
     return {
@@ -104,7 +132,7 @@ export class SalesService {
   async findOne(id: string): Promise<Sales> {
     const sales = await this.salesRepository.findOne({
       where: { id },
-      relations: ['items'],
+      relations: ["items"],
     });
 
     if (!sales) {
@@ -114,7 +142,11 @@ export class SalesService {
     return sales;
   }
 
-  async update(id: string, updateSalesDto: UpdateSalesDto, userId?: string): Promise<Sales> {
+  async update(
+    id: string,
+    updateSalesDto: UpdateSalesDto,
+    userId?: string,
+  ): Promise<Sales> {
     const sales = await this.findOne(id);
 
     // Handle status transitions
@@ -155,7 +187,9 @@ export class SalesService {
     if (updateSalesDto.items) {
       await this.salesItemRepository.delete({ salesId: id });
 
-      const { subtotal, totalDiscount, totalTax, items } = this.calculateTotals(updateSalesDto.items);
+      const { subtotal, totalDiscount, totalTax, items } = this.calculateTotals(
+        updateSalesDto.items,
+      );
       const totalAmount = subtotal - totalDiscount + totalTax;
 
       await this.salesItemRepository.save(
@@ -180,7 +214,7 @@ export class SalesService {
     const sales = await this.findOne(id);
 
     if (sales.status === SalesStatus.PAID) {
-      throw new BadRequestException('Cannot delete a paid sales record');
+      throw new BadRequestException("Cannot delete a paid sales record");
     }
 
     await this.salesRepository.remove(sales);
@@ -190,7 +224,7 @@ export class SalesService {
     const sales = await this.findOne(id);
 
     if (sales.status !== SalesStatus.QUOTATION) {
-      throw new BadRequestException('Only quotations can be confirmed');
+      throw new BadRequestException("Only quotations can be confirmed");
     }
 
     sales.status = SalesStatus.CONFIRMED;
@@ -204,7 +238,7 @@ export class SalesService {
     const sales = await this.findOne(id);
 
     if (sales.status !== SalesStatus.CONFIRMED) {
-      throw new BadRequestException('Only confirmed sales can be invoiced');
+      throw new BadRequestException("Only confirmed sales can be invoiced");
     }
 
     sales.status = SalesStatus.INVOICED;
@@ -214,11 +248,20 @@ export class SalesService {
     return await this.salesRepository.save(sales);
   }
 
-  async recordPayment(id: string, amount: number, paymentMethod: string): Promise<Sales> {
+  async recordPayment(
+    id: string,
+    amount: number,
+    paymentMethod: string,
+  ): Promise<Sales> {
     const sales = await this.findOne(id);
 
-    if (sales.status === SalesStatus.CANCELLED || sales.status === SalesStatus.RETURNED) {
-      throw new BadRequestException('Cannot record payment for cancelled or returned sales');
+    if (
+      sales.status === SalesStatus.CANCELLED ||
+      sales.status === SalesStatus.RETURNED
+    ) {
+      throw new BadRequestException(
+        "Cannot record payment for cancelled or returned sales",
+      );
     }
 
     sales.paidAmount = Number(sales.paidAmount) + amount;
@@ -240,7 +283,7 @@ export class SalesService {
     const sales = await this.findOne(id);
 
     if (sales.status === SalesStatus.PAID) {
-      throw new BadRequestException('Cannot cancel a paid sales record');
+      throw new BadRequestException("Cannot cancel a paid sales record");
     }
 
     sales.status = SalesStatus.CANCELLED;
@@ -248,16 +291,26 @@ export class SalesService {
     return await this.salesRepository.save(sales);
   }
 
-  async returnSales(id: string, returnItems?: Array<{ itemId: string; quantity: number }>): Promise<Sales> {
+  async returnSales(
+    id: string,
+    returnItems?: Array<{ itemId: string; quantity: number }>,
+  ): Promise<Sales> {
     const sales = await this.findOne(id);
 
-    if (sales.status !== SalesStatus.PAID && sales.status !== SalesStatus.INVOICED) {
-      throw new BadRequestException('Only paid or invoiced sales can be returned');
+    if (
+      sales.status !== SalesStatus.PAID &&
+      sales.status !== SalesStatus.INVOICED
+    ) {
+      throw new BadRequestException(
+        "Only paid or invoiced sales can be returned",
+      );
     }
 
     if (returnItems && returnItems.length > 0) {
       for (const returnItem of returnItems) {
-        const item = await this.salesItemRepository.findOne({ where: { id: returnItem.itemId } });
+        const item = await this.salesItemRepository.findOne({
+          where: { id: returnItem.itemId },
+        });
         if (item) {
           item.returnedQuantity = returnItem.quantity;
           await this.salesItemRepository.save(item);
@@ -271,46 +324,65 @@ export class SalesService {
     return await this.salesRepository.save(sales);
   }
 
-  async getTotalSales(vendorId: string, startDate?: string, endDate?: string): Promise<number> {
+  async getTotalSales(
+    vendorId: string,
+    startDate?: string,
+    endDate?: string,
+  ): Promise<number> {
     const query = this.salesRepository
-      .createQueryBuilder('sales')
-      .select('SUM(sales.total_amount)', 'total')
-      .where('sales.vendorId = :vendorId', { vendorId })
-      .andWhere('sales.status != :status', { status: SalesStatus.CANCELLED });
+      .createQueryBuilder("sales")
+      .select("SUM(sales.total_amount)", "total")
+      .where("sales.vendorId = :vendorId", { vendorId })
+      .andWhere("sales.status != :status", { status: SalesStatus.CANCELLED });
 
     if (startDate && endDate) {
-      query.andWhere('sales.sales_date BETWEEN :startDate AND :endDate', { startDate, endDate });
+      query.andWhere("sales.sales_date BETWEEN :startDate AND :endDate", {
+        startDate,
+        endDate,
+      });
     } else if (startDate) {
-      query.andWhere('sales.sales_date >= :startDate', { startDate });
+      query.andWhere("sales.sales_date >= :startDate", { startDate });
     } else if (endDate) {
-      query.andWhere('sales.sales_date <= :endDate', { endDate });
+      query.andWhere("sales.sales_date <= :endDate", { endDate });
     }
 
     const result = await query.getRawOne();
     return Number(result?.total || 0);
   }
 
-  async getSalesByStatus(vendorId: string, startDate?: string, endDate?: string): Promise<any[]> {
+  async getSalesByStatus(
+    vendorId: string,
+    startDate?: string,
+    endDate?: string,
+  ): Promise<any[]> {
     const query = this.salesRepository
-      .createQueryBuilder('sales')
-      .select('sales.status', 'status')
-      .addSelect('COUNT(sales.id)', 'count')
-      .addSelect('SUM(sales.total_amount)', 'total')
-      .where('sales.vendorId = :vendorId', { vendorId })
-      .groupBy('sales.status');
+      .createQueryBuilder("sales")
+      .select("sales.status", "status")
+      .addSelect("COUNT(sales.id)", "count")
+      .addSelect("SUM(sales.total_amount)", "total")
+      .where("sales.vendorId = :vendorId", { vendorId })
+      .groupBy("sales.status");
 
     if (startDate && endDate) {
-      query.andWhere('sales.sales_date BETWEEN :startDate AND :endDate', { startDate, endDate });
+      query.andWhere("sales.sales_date BETWEEN :startDate AND :endDate", {
+        startDate,
+        endDate,
+      });
     } else if (startDate) {
-      query.andWhere('sales.sales_date >= :startDate', { startDate });
+      query.andWhere("sales.sales_date >= :startDate", { startDate });
     } else if (endDate) {
-      query.andWhere('sales.sales_date <= :endDate', { endDate });
+      query.andWhere("sales.sales_date <= :endDate", { endDate });
     }
 
     return await query.getRawMany();
   }
 
-  private calculateTotals(items: Array<any>): { subtotal: number; totalDiscount: number; totalTax: number; items: Array<any> } {
+  private calculateTotals(items: Array<any>): {
+    subtotal: number;
+    totalDiscount: number;
+    totalTax: number;
+    items: Array<any>;
+  } {
     let subtotal = 0;
     let totalDiscount = 0;
     let totalTax = 0;
@@ -343,10 +415,10 @@ export class SalesService {
   private async generateSalesNumber(vendorId: string): Promise<string> {
     const date = new Date();
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, "0");
 
     const count = await this.salesRepository.count({ where: { vendorId } });
-    const sequence = String(count + 1).padStart(5, '0');
+    const sequence = String(count + 1).padStart(5, "0");
 
     return `SO-${year}${month}-${sequence}`;
   }
@@ -354,21 +426,28 @@ export class SalesService {
   private async generateInvoiceNumber(vendorId: string): Promise<string> {
     const date = new Date();
     const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, "0");
 
     const count = await this.salesRepository.count({
-      where: { vendorId, invoiceNumber: Not(null) },
+      where: { vendorId, invoiceNumber: Not(IsNull()) },
     });
-    const sequence = String(count + 1).padStart(5, '0');
+    const sequence = String(count + 1).padStart(5, "0");
 
     return `INV-${year}${month}-${sequence}`;
   }
 
-  private async validateStatusTransition(currentStatus: SalesStatus, newStatus: SalesStatus): Promise<void> {
+  private async validateStatusTransition(
+    currentStatus: SalesStatus,
+    newStatus: SalesStatus,
+  ): Promise<void> {
     const validTransitions: Record<SalesStatus, SalesStatus[]> = {
       [SalesStatus.QUOTATION]: [SalesStatus.CONFIRMED, SalesStatus.CANCELLED],
       [SalesStatus.CONFIRMED]: [SalesStatus.INVOICED, SalesStatus.CANCELLED],
-      [SalesStatus.INVOICED]: [SalesStatus.PAID, SalesStatus.CANCELLED, SalesStatus.RETURNED],
+      [SalesStatus.INVOICED]: [
+        SalesStatus.PAID,
+        SalesStatus.CANCELLED,
+        SalesStatus.RETURNED,
+      ],
       [SalesStatus.PAID]: [SalesStatus.RETURNED],
       [SalesStatus.CANCELLED]: [],
       [SalesStatus.RETURNED]: [],
@@ -381,6 +460,3 @@ export class SalesService {
     }
   }
 }
-
-// Import missing Not function
-import { Not } from 'typeorm';

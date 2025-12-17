@@ -1,6 +1,6 @@
-import { Injectable, Logger, BadRequestException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import axios, { AxiosInstance } from 'axios';
+import { Injectable, Logger, BadRequestException } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import axios, { AxiosInstance } from "axios";
 import {
   IPaymentGateway,
   InitializePaymentRequest,
@@ -10,7 +10,7 @@ import {
   RefundPaymentResponse,
   PaymentWebhookPayload,
   PaymentStatus,
-} from '../interfaces/payment-gateway.interface';
+} from "../interfaces/payment-gateway.interface";
 
 @Injectable()
 export class PaystackService implements IPaymentGateway {
@@ -19,17 +19,18 @@ export class PaystackService implements IPaymentGateway {
   private readonly secretKey: string;
 
   constructor(private configService: ConfigService) {
-    this.secretKey = this.configService.get<string>('PAYSTACK_SECRET_KEY') || '';
+    this.secretKey =
+      this.configService.get<string>("PAYSTACK_SECRET_KEY") || "";
 
     if (!this.secretKey) {
-      throw new Error('PAYSTACK_SECRET_KEY is not configured');
+      throw new Error("PAYSTACK_SECRET_KEY is not configured");
     }
 
     this.client = axios.create({
-      baseURL: 'https://api.paystack.co',
+      baseURL: "https://api.paystack.co",
       headers: {
         Authorization: `Bearer ${this.secretKey}`,
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
   }
@@ -38,10 +39,10 @@ export class PaystackService implements IPaymentGateway {
     request: InitializePaymentRequest,
   ): Promise<InitializePaymentResponse> {
     try {
-      const response = await this.client.post('/transaction/initialize', {
+      const response = await this.client.post("/transaction/initialize", {
         email: request.email,
         amount: Math.round(request.amount * 100), // Convert to kobo
-        currency: request.currency || 'NGN',
+        currency: request.currency || "NGN",
         reference: request.reference,
         callback_url: request.callbackUrl,
         metadata: request.metadata,
@@ -57,12 +58,12 @@ export class PaystackService implements IPaymentGateway {
       }
 
       throw new BadRequestException(
-        response.data.message || 'Failed to initialize payment',
+        response.data.message || "Failed to initialize payment",
       );
     } catch (error) {
-      this.logger.error('Paystack initialize payment error:', error.message);
+      this.logger.error("Paystack initialize payment error:", error.message);
       throw new BadRequestException(
-        error.response?.data?.message || 'Failed to initialize payment',
+        error.response?.data?.message || "Failed to initialize payment",
       );
     }
   }
@@ -76,7 +77,7 @@ export class PaystackService implements IPaymentGateway {
       if (response.data.status && response.data.data) {
         const data = response.data.data;
         return {
-          success: data.status === 'success',
+          success: data.status === "success",
           reference: data.reference,
           amount: data.amount / 100, // Convert from kobo
           currency: data.currency,
@@ -86,11 +87,11 @@ export class PaystackService implements IPaymentGateway {
         };
       }
 
-      throw new BadRequestException('Payment verification failed');
+      throw new BadRequestException("Payment verification failed");
     } catch (error) {
-      this.logger.error('Paystack verify payment error:', error.message);
+      this.logger.error("Paystack verify payment error:", error.message);
       throw new BadRequestException(
-        error.response?.data?.message || 'Failed to verify payment',
+        error.response?.data?.message || "Failed to verify payment",
       );
     }
   }
@@ -99,7 +100,7 @@ export class PaystackService implements IPaymentGateway {
     request: RefundPaymentRequest,
   ): Promise<RefundPaymentResponse> {
     try {
-      const response = await this.client.post('/refund', {
+      const response = await this.client.post("/refund", {
         transaction: request.reference,
         amount: request.amount ? Math.round(request.amount * 100) : undefined,
         merchant_note: request.reason,
@@ -115,11 +116,11 @@ export class PaystackService implements IPaymentGateway {
         };
       }
 
-      throw new BadRequestException('Refund failed');
+      throw new BadRequestException("Refund failed");
     } catch (error) {
-      this.logger.error('Paystack refund error:', error.message);
+      this.logger.error("Paystack refund error:", error.message);
       throw new BadRequestException(
-        error.response?.data?.message || 'Failed to process refund',
+        error.response?.data?.message || "Failed to process refund",
       );
     }
   }
@@ -128,15 +129,15 @@ export class PaystackService implements IPaymentGateway {
     this.logger.log(`Paystack webhook event: ${payload.event}`);
 
     switch (payload.event) {
-      case 'charge.success':
+      case "charge.success":
         this.logger.log(`Payment successful: ${payload.data.reference}`);
         // Handle successful payment
         break;
-      case 'charge.failed':
+      case "charge.failed":
         this.logger.log(`Payment failed: ${payload.data.reference}`);
         // Handle failed payment
         break;
-      case 'refund.processed':
+      case "refund.processed":
         this.logger.log(`Refund processed: ${payload.data.reference}`);
         // Handle refund
         break;

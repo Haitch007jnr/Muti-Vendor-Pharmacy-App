@@ -1,6 +1,6 @@
-import { Injectable, Logger, BadRequestException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import axios, { AxiosInstance } from 'axios';
+import { Injectable, Logger, BadRequestException } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import axios, { AxiosInstance } from "axios";
 import {
   IPaymentGateway,
   InitializePaymentRequest,
@@ -10,7 +10,7 @@ import {
   RefundPaymentResponse,
   PaymentWebhookPayload,
   PaymentStatus,
-} from '../interfaces/payment-gateway.interface';
+} from "../interfaces/payment-gateway.interface";
 
 @Injectable()
 export class MonnifyService implements IPaymentGateway {
@@ -22,28 +22,33 @@ export class MonnifyService implements IPaymentGateway {
   private readonly baseUrl: string;
 
   constructor(private configService: ConfigService) {
-    this.apiKey = this.configService.get<string>('MONNIFY_API_KEY') || '';
-    this.secretKey = this.configService.get<string>('MONNIFY_SECRET_KEY') || '';
-    this.contractCode = this.configService.get<string>('MONNIFY_CONTRACT_CODE') || '';
-    this.baseUrl = this.configService.get<string>('MONNIFY_BASE_URL') || 'https://sandbox.monnify.com';
+    this.apiKey = this.configService.get<string>("MONNIFY_API_KEY") || "";
+    this.secretKey = this.configService.get<string>("MONNIFY_SECRET_KEY") || "";
+    this.contractCode =
+      this.configService.get<string>("MONNIFY_CONTRACT_CODE") || "";
+    this.baseUrl =
+      this.configService.get<string>("MONNIFY_BASE_URL") ||
+      "https://sandbox.monnify.com";
 
     if (!this.apiKey || !this.secretKey || !this.contractCode) {
-      throw new Error('Monnify credentials are not properly configured');
+      throw new Error("Monnify credentials are not properly configured");
     }
 
     this.client = axios.create({
       baseURL: this.baseUrl,
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
   }
 
   private async getAccessToken(): Promise<string> {
     try {
-      const credentials = Buffer.from(`${this.apiKey}:${this.secretKey}`).toString('base64');
-      
-      const response = await this.client.post('/api/v1/auth/login', null, {
+      const credentials = Buffer.from(
+        `${this.apiKey}:${this.secretKey}`,
+      ).toString("base64");
+
+      const response = await this.client.post("/api/v1/auth/login", null, {
         headers: {
           Authorization: `Basic ${credentials}`,
         },
@@ -53,10 +58,10 @@ export class MonnifyService implements IPaymentGateway {
         return response.data.responseBody.accessToken;
       }
 
-      throw new Error('Failed to get Monnify access token');
+      throw new Error("Failed to get Monnify access token");
     } catch (error) {
-      this.logger.error('Monnify authentication error:', error.message);
-      throw new BadRequestException('Failed to authenticate with Monnify');
+      this.logger.error("Monnify authentication error:", error.message);
+      throw new BadRequestException("Failed to authenticate with Monnify");
     }
   }
 
@@ -67,17 +72,17 @@ export class MonnifyService implements IPaymentGateway {
       const accessToken = await this.getAccessToken();
 
       const response = await this.client.post(
-        '/api/v1/merchant/transactions/init-transaction',
+        "/api/v1/merchant/transactions/init-transaction",
         {
           amount: request.amount,
           customerName: request.email,
           customerEmail: request.email,
           paymentReference: request.reference || this.generateReference(),
-          paymentDescription: 'Payment for order',
-          currencyCode: request.currency || 'NGN',
+          paymentDescription: "Payment for order",
+          currencyCode: request.currency || "NGN",
           contractCode: this.contractCode,
           redirectUrl: request.callbackUrl,
-          paymentMethods: ['CARD', 'ACCOUNT_TRANSFER'],
+          paymentMethods: ["CARD", "ACCOUNT_TRANSFER"],
           metadata: request.metadata,
         },
         {
@@ -97,12 +102,12 @@ export class MonnifyService implements IPaymentGateway {
       }
 
       throw new BadRequestException(
-        response.data.responseMessage || 'Failed to initialize payment',
+        response.data.responseMessage || "Failed to initialize payment",
       );
     } catch (error) {
-      this.logger.error('Monnify initialize payment error:', error.message);
+      this.logger.error("Monnify initialize payment error:", error.message);
       throw new BadRequestException(
-        error.response?.data?.responseMessage || 'Failed to initialize payment',
+        error.response?.data?.responseMessage || "Failed to initialize payment",
       );
     }
   }
@@ -123,7 +128,7 @@ export class MonnifyService implements IPaymentGateway {
       if (response.data.requestSuccessful) {
         const data = response.data.responseBody;
         return {
-          success: data.paymentStatus === 'PAID',
+          success: data.paymentStatus === "PAID",
           reference: data.paymentReference,
           amount: data.amountPaid,
           currency: data.currencyCode,
@@ -133,11 +138,11 @@ export class MonnifyService implements IPaymentGateway {
         };
       }
 
-      throw new BadRequestException('Payment verification failed');
+      throw new BadRequestException("Payment verification failed");
     } catch (error) {
-      this.logger.error('Monnify verify payment error:', error.message);
+      this.logger.error("Monnify verify payment error:", error.message);
       throw new BadRequestException(
-        error.response?.data?.responseMessage || 'Failed to verify payment',
+        error.response?.data?.responseMessage || "Failed to verify payment",
       );
     }
   }
@@ -149,11 +154,11 @@ export class MonnifyService implements IPaymentGateway {
       const accessToken = await this.getAccessToken();
 
       const response = await this.client.post(
-        '/api/v1/merchant/refunds/initiate',
+        "/api/v1/merchant/refunds/initiate",
         {
           transactionReference: request.reference,
           refundAmount: request.amount,
-          refundReason: request.reason || 'Customer request',
+          refundReason: request.reason || "Customer request",
         },
         {
           headers: {
@@ -173,11 +178,11 @@ export class MonnifyService implements IPaymentGateway {
         };
       }
 
-      throw new BadRequestException('Refund failed');
+      throw new BadRequestException("Refund failed");
     } catch (error) {
-      this.logger.error('Monnify refund error:', error.message);
+      this.logger.error("Monnify refund error:", error.message);
       throw new BadRequestException(
-        error.response?.data?.responseMessage || 'Failed to process refund',
+        error.response?.data?.responseMessage || "Failed to process refund",
       );
     }
   }
@@ -186,15 +191,15 @@ export class MonnifyService implements IPaymentGateway {
     this.logger.log(`Monnify webhook event: ${payload.event}`);
 
     switch (payload.event) {
-      case 'SUCCESSFUL_TRANSACTION':
+      case "SUCCESSFUL_TRANSACTION":
         this.logger.log(`Payment successful: ${payload.data.paymentReference}`);
         // Handle successful payment
         break;
-      case 'FAILED_TRANSACTION':
+      case "FAILED_TRANSACTION":
         this.logger.log(`Payment failed: ${payload.data.paymentReference}`);
         // Handle failed payment
         break;
-      case 'REFUND_COMPLETED':
+      case "REFUND_COMPLETED":
         this.logger.log(`Refund completed: ${payload.data.refundReference}`);
         // Handle refund
         break;

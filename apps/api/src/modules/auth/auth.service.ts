@@ -3,15 +3,15 @@ import {
   UnauthorizedException,
   ConflictException,
   BadRequestException,
-} from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import * as bcrypt from 'bcrypt';
-import { User, UserRoleEnum, UserStatus } from '../../common/entities';
-import { RegisterDto } from './dto/register.dto';
-import { LoginDto } from './dto/login.dto';
+} from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
+import { ConfigService } from "@nestjs/config";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import * as bcrypt from "bcrypt";
+import { User, UserRoleEnum, UserStatus } from "../../common/entities";
+import { RegisterDto } from "./dto/register.dto";
+import { LoginDto } from "./dto/login.dto";
 
 export interface AuthResponse {
   accessToken: string;
@@ -31,18 +31,15 @@ export class AuthService {
   async register(registerDto: RegisterDto): Promise<AuthResponse> {
     // Check if user already exists
     const existingUser = await this.userRepository.findOne({
-      where: [
-        { email: registerDto.email },
-        { phone: registerDto.phone },
-      ],
+      where: [{ email: registerDto.email }, { phone: registerDto.phone }],
     });
 
     if (existingUser) {
       if (existingUser.email === registerDto.email) {
-        throw new ConflictException('Email already registered');
+        throw new ConflictException("Email already registered");
       }
       if (existingUser.phone === registerDto.phone) {
-        throw new ConflictException('Phone number already registered');
+        throw new ConflictException("Phone number already registered");
       }
     }
 
@@ -71,15 +68,18 @@ export class AuthService {
     // Find user by email
     const user = await this.userRepository.findOne({
       where: { email: loginDto.email },
-      relations: ['userRoles', 'userRoles.role'],
+      relations: ["userRoles", "userRoles.role"],
     });
 
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException("Invalid credentials");
     }
 
     // Check if user is active
-    if (user.status !== UserStatus.ACTIVE && user.status !== UserStatus.PENDING) {
+    if (
+      user.status !== UserStatus.ACTIVE &&
+      user.status !== UserStatus.PENDING
+    ) {
       throw new UnauthorizedException(`Account is ${user.status}`);
     }
 
@@ -90,7 +90,7 @@ export class AuthService {
     );
 
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException("Invalid credentials");
     }
 
     // Update last login
@@ -104,25 +104,28 @@ export class AuthService {
   async refreshToken(refreshToken: string): Promise<AuthResponse> {
     try {
       const payload = this.jwtService.verify(refreshToken, {
-        secret: this.configService.get<string>('JWT_SECRET'),
+        secret: this.configService.get<string>("JWT_SECRET"),
       });
 
       const user = await this.userRepository.findOne({
         where: { id: payload.sub },
-        relations: ['userRoles', 'userRoles.role'],
+        relations: ["userRoles", "userRoles.role"],
       });
 
       if (!user) {
-        throw new UnauthorizedException('User not found');
+        throw new UnauthorizedException("User not found");
       }
 
-      if (user.status !== UserStatus.ACTIVE && user.status !== UserStatus.PENDING) {
+      if (
+        user.status !== UserStatus.ACTIVE &&
+        user.status !== UserStatus.PENDING
+      ) {
         throw new UnauthorizedException(`Account is ${user.status}`);
       }
 
       return this.generateTokens(user);
     } catch (error) {
-      throw new UnauthorizedException('Invalid refresh token');
+      throw new UnauthorizedException("Invalid refresh token");
     }
   }
 
@@ -130,15 +133,15 @@ export class AuthService {
     const user = await this.userRepository.findOne({
       where: { id: userId },
       relations: [
-        'userRoles',
-        'userRoles.role',
-        'userRoles.role.rolePermissions',
-        'userRoles.role.rolePermissions.permission',
+        "userRoles",
+        "userRoles.role",
+        "userRoles.role.rolePermissions",
+        "userRoles.role.rolePermissions.permission",
       ],
     });
 
     if (!user) {
-      throw new UnauthorizedException('User not found');
+      throw new UnauthorizedException("User not found");
     }
 
     return user;
@@ -152,11 +155,12 @@ export class AuthService {
     };
 
     const accessToken = this.jwtService.sign(payload, {
-      expiresIn: this.configService.get<string>('JWT_EXPIRATION') || '7d',
+      expiresIn: this.configService.get<string>("JWT_EXPIRATION") || "7d",
     });
 
     const refreshToken = this.jwtService.sign(payload, {
-      expiresIn: this.configService.get<string>('REFRESH_TOKEN_EXPIRATION') || '30d',
+      expiresIn:
+        this.configService.get<string>("REFRESH_TOKEN_EXPIRATION") || "30d",
     });
 
     // Return user data without sensitive information
@@ -179,7 +183,7 @@ export class AuthService {
     });
 
     if (!user) {
-      throw new BadRequestException('User not found');
+      throw new BadRequestException("User not found");
     }
 
     // Verify current password
@@ -189,7 +193,7 @@ export class AuthService {
     );
 
     if (!isPasswordValid) {
-      throw new BadRequestException('Current password is incorrect');
+      throw new BadRequestException("Current password is incorrect");
     }
 
     // Hash new password

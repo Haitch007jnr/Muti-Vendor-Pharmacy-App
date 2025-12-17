@@ -1,39 +1,39 @@
-import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ScheduleModule } from '@nestjs/schedule';
-import { EventEmitterModule } from '@nestjs/event-emitter';
-import { ThrottlerModule } from '@nestjs/throttler';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { AuthModule } from './modules/auth/auth.module';
-import { UsersModule } from './modules/users/users.module';
-import { VendorsModule } from './modules/vendors/vendors.module';
-import { ProductsModule } from './modules/products/products.module';
-import { OrdersModule } from './modules/orders/orders.module';
-import { PaymentsModule } from './modules/payments/payments.module';
-import { NotificationsModule } from './modules/notifications/notifications.module';
-import { InventoryModule } from './modules/inventory/inventory.module';
-import { ExpensesModule } from './modules/expenses/expenses.module';
-import { ClientsModule } from './modules/clients/clients.module';
-import { SuppliersModule } from './modules/suppliers/suppliers.module';
-import { EmployeesModule } from './modules/employees/employees.module';
-import { DepartmentsModule } from './modules/departments/departments.module';
-import { AccountingModule } from './modules/accounting/accounting.module';
-import { PayrollModule } from './modules/payroll/payroll.module';
-import { AssetsModule } from './modules/assets/assets.module';
-import { LoansModule } from './modules/loans/loans.module';
-import { ReportsModule } from './modules/reports/reports.module';
-import { PurchasesModule } from './modules/purchases/purchases.module';
-import { SalesModule } from './modules/sales/sales.module';
-import { PosModule } from './modules/pos/pos.module';
+import { Module } from "@nestjs/common";
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { ScheduleModule } from "@nestjs/schedule";
+import { EventEmitterModule } from "@nestjs/event-emitter";
+import { ThrottlerModule } from "@nestjs/throttler";
+import { AppController } from "./app.controller";
+import { AppService } from "./app.service";
+import { AuthModule } from "./modules/auth/auth.module";
+import { UsersModule } from "./modules/users/users.module";
+import { VendorsModule } from "./modules/vendors/vendors.module";
+import { ProductsModule } from "./modules/products/products.module";
+import { OrdersModule } from "./modules/orders/orders.module";
+import { PaymentsModule } from "./modules/payments/payments.module";
+import { NotificationsModule } from "./modules/notifications/notifications.module";
+import { InventoryModule } from "./modules/inventory/inventory.module";
+import { ExpensesModule } from "./modules/expenses/expenses.module";
+import { ClientsModule } from "./modules/clients/clients.module";
+import { SuppliersModule } from "./modules/suppliers/suppliers.module";
+import { EmployeesModule } from "./modules/employees/employees.module";
+import { DepartmentsModule } from "./modules/departments/departments.module";
+import { AccountingModule } from "./modules/accounting/accounting.module";
+import { PayrollModule } from "./modules/payroll/payroll.module";
+import { AssetsModule } from "./modules/assets/assets.module";
+import { LoansModule } from "./modules/loans/loans.module";
+import { ReportsModule } from "./modules/reports/reports.module";
+import { PurchasesModule } from "./modules/purchases/purchases.module";
+import { SalesModule } from "./modules/sales/sales.module";
+import { PosModule } from "./modules/pos/pos.module";
 
 @Module({
   imports: [
     // Configuration
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
+      envFilePath: ".env",
     }),
 
     // Database
@@ -41,16 +41,16 @@ import { PosModule } from './modules/pos/pos.module';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        host: configService.get('DATABASE_HOST'),
-        port: configService.get('DATABASE_PORT'),
-        username: configService.get('DATABASE_USER'),
-        password: configService.get('DATABASE_PASSWORD'),
-        database: configService.get('DATABASE_NAME'),
-        entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: configService.get('NODE_ENV') === 'development',
-        logging: configService.get('NODE_ENV') === 'development',
-        migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
+        type: "postgres",
+        host: configService.get("DATABASE_HOST"),
+        port: configService.get("DATABASE_PORT"),
+        username: configService.get("DATABASE_USER"),
+        password: configService.get("DATABASE_PASSWORD"),
+        database: configService.get("DATABASE_NAME"),
+        entities: [__dirname + "/**/*.entity{.ts,.js}"],
+        synchronize: configService.get("NODE_ENV") === "development",
+        logging: configService.get("NODE_ENV") === "development",
+        migrations: [__dirname + "/database/migrations/*{.ts,.js}"],
         migrationsRun: true,
       }),
     }),
