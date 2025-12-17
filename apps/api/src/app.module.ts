@@ -27,6 +27,7 @@ import { ReportsModule } from "./modules/reports/reports.module";
 import { PurchasesModule } from "./modules/purchases/purchases.module";
 import { SalesModule } from "./modules/sales/sales.module";
 import { PosModule } from "./modules/pos/pos.module";
+import { UpdatesModule } from "./modules/updates/updates.module";
 
 @Module({
   imports: [
@@ -91,6 +92,7 @@ import { PosModule } from "./modules/pos/pos.module";
     PurchasesModule,
     SalesModule,
     PosModule,
+    UpdatesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
