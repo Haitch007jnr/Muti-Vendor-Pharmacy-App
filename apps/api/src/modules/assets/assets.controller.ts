@@ -39,7 +39,10 @@ export class AssetsController {
   @Post("categories")
   @RequirePermissions("assets.create")
   @ApiOperation({ summary: "Create a new asset category" })
-  @ApiResponse({ status: 201, description: "Asset category created successfully" })
+  @ApiResponse({
+    status: 201,
+    description: "Asset category created successfully",
+  })
   @ApiResponse({ status: 400, description: "Bad request" })
   @ApiResponse({ status: 401, description: "Unauthorized" })
   async createCategory(@Body() createCategoryDto: CreateAssetCategoryDto) {
@@ -49,7 +52,10 @@ export class AssetsController {
   @Get("categories")
   @RequirePermissions("assets.read")
   @ApiOperation({ summary: "Get all asset categories" })
-  @ApiResponse({ status: 200, description: "Asset categories retrieved successfully" })
+  @ApiResponse({
+    status: 200,
+    description: "Asset categories retrieved successfully",
+  })
   async findAllCategories(@Query("vendorId") vendorId: string) {
     return this.assetsService.findAllCategories(vendorId);
   }
@@ -58,7 +64,10 @@ export class AssetsController {
   @RequirePermissions("assets.read")
   @ApiOperation({ summary: "Get asset category by ID" })
   @ApiParam({ name: "id", description: "Asset category ID" })
-  @ApiResponse({ status: 200, description: "Asset category retrieved successfully" })
+  @ApiResponse({
+    status: 200,
+    description: "Asset category retrieved successfully",
+  })
   @ApiResponse({ status: 404, description: "Asset category not found" })
   async findOneCategory(@Param("id") id: string) {
     return this.assetsService.findOneCategory(id);
@@ -68,7 +77,10 @@ export class AssetsController {
   @RequirePermissions("assets.update")
   @ApiOperation({ summary: "Update asset category" })
   @ApiParam({ name: "id", description: "Asset category ID" })
-  @ApiResponse({ status: 200, description: "Asset category updated successfully" })
+  @ApiResponse({
+    status: 200,
+    description: "Asset category updated successfully",
+  })
   @ApiResponse({ status: 404, description: "Asset category not found" })
   async updateCategory(
     @Param("id") id: string,
@@ -82,7 +94,10 @@ export class AssetsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: "Delete asset category" })
   @ApiParam({ name: "id", description: "Asset category ID" })
-  @ApiResponse({ status: 204, description: "Asset category deleted successfully" })
+  @ApiResponse({
+    status: 204,
+    description: "Asset category deleted successfully",
+  })
   @ApiResponse({ status: 404, description: "Asset category not found" })
   async removeCategory(@Param("id") id: string) {
     await this.assetsService.removeCategory(id);
@@ -132,7 +147,10 @@ export class AssetsController {
   @ApiParam({ name: "id", description: "Asset ID" })
   @ApiResponse({ status: 200, description: "Asset updated successfully" })
   @ApiResponse({ status: 404, description: "Asset not found" })
-  async update(@Param("id") id: string, @Body() updateAssetDto: UpdateAssetDto) {
+  async update(
+    @Param("id") id: string,
+    @Body() updateAssetDto: UpdateAssetDto,
+  ) {
     return this.assetsService.update(id, updateAssetDto);
   }
 
@@ -154,20 +172,30 @@ export class AssetsController {
   @ApiParam({ name: "assetId", description: "Asset ID" })
   @ApiParam({ name: "year", description: "Year" })
   @ApiParam({ name: "month", description: "Month (1-12)" })
-  @ApiResponse({ status: 201, description: "Depreciation calculated successfully" })
+  @ApiResponse({
+    status: 201,
+    description: "Depreciation calculated successfully",
+  })
   async calculateMonthlyDepreciation(
     @Param("assetId") assetId: string,
     @Param("year") year: number,
     @Param("month") month: number,
   ) {
-    return this.assetsService.calculateMonthlyDepreciation(assetId, Number(year), Number(month));
+    return this.assetsService.calculateMonthlyDepreciation(
+      assetId,
+      Number(year),
+      Number(month),
+    );
   }
 
   @Get(":assetId/depreciation-schedule")
   @RequirePermissions("assets.read")
   @ApiOperation({ summary: "Get depreciation schedule for an asset" })
   @ApiParam({ name: "assetId", description: "Asset ID" })
-  @ApiResponse({ status: 200, description: "Depreciation schedule retrieved successfully" })
+  @ApiResponse({
+    status: 200,
+    description: "Depreciation schedule retrieved successfully",
+  })
   async getDepreciationSchedule(@Param("assetId") assetId: string) {
     return this.assetsService.getDepreciationSchedule(assetId);
   }

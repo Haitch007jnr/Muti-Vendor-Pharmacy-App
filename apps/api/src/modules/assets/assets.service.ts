@@ -5,7 +5,11 @@ import {
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
-import { Asset, AssetStatus, DepreciationMethod } from "./entities/asset.entity";
+import {
+  Asset,
+  AssetStatus,
+  DepreciationMethod,
+} from "./entities/asset.entity";
 import { AssetCategory } from "./entities/asset-category.entity";
 import { AssetDepreciation } from "./entities/asset-depreciation.entity";
 import { CreateAssetDto } from "./dto/create-asset.dto";
@@ -86,41 +90,39 @@ export class AssetsService {
     usefulLife: number,
     depreciationMethod: DepreciationMethod,
     depreciationRate?: number,
-  ): { annualDepreciation: number; rate: number } {
-    let annualDepreciation: number;
+  ): { rate: number } {
     let rate: number;
 
     switch (depreciationMethod) {
       case DepreciationMethod.STRAIGHT_LINE:
         // Annual depreciation = (Cost - Salvage Value) / Useful Life
-        annualDepreciation = (purchaseCost - salvageValue) / usefulLife;
-        rate = (annualDepreciation / purchaseCost) * 100;
+        const straightLineDepreciation =
+          (purchaseCost - salvageValue) / usefulLife;
+        rate = (straightLineDepreciation / purchaseCost) * 100;
         break;
 
       case DepreciationMethod.DECLINING_BALANCE:
         // Use provided rate or calculate from useful life
         rate = depreciationRate || (1 / usefulLife) * 100;
-        annualDepreciation = (purchaseCost * rate) / 100;
         break;
 
       case DepreciationMethod.DOUBLE_DECLINING_BALANCE:
         // Rate = 2 / Useful Life
         rate = (2 / usefulLife) * 100;
-        annualDepreciation = (purchaseCost * rate) / 100;
         break;
 
       case DepreciationMethod.UNITS_OF_PRODUCTION:
         // This method requires production units, default to straight line
-        annualDepreciation = (purchaseCost - salvageValue) / usefulLife;
-        rate = (annualDepreciation / purchaseCost) * 100;
+        const unitsDepreciation = (purchaseCost - salvageValue) / usefulLife;
+        rate = (unitsDepreciation / purchaseCost) * 100;
         break;
 
       default:
-        annualDepreciation = (purchaseCost - salvageValue) / usefulLife;
-        rate = (annualDepreciation / purchaseCost) * 100;
+        const defaultDepreciation = (purchaseCost - salvageValue) / usefulLife;
+        rate = (defaultDepreciation / purchaseCost) * 100;
     }
 
-    return { annualDepreciation, rate };
+    return { rate };
   }
 
   async create(createAssetDto: CreateAssetDto): Promise<Asset> {
@@ -142,7 +144,7 @@ export class AssetsService {
     const depreciationMethod =
       createAssetDto.depreciationMethod || DepreciationMethod.STRAIGHT_LINE;
 
-    const { annualDepreciation, rate } = this.calculateDepreciation(
+    const { rate } = this.calculateDepreciation(
       createAssetDto.purchaseCost,
       salvageValue,
       createAssetDto.usefulLife,
@@ -155,7 +157,7 @@ export class AssetsService {
       purchaseDate: new Date(createAssetDto.purchaseDate),
       warrantyExpiry: createAssetDto.warrantyExpiry
         ? new Date(createAssetDto.warrantyExpiry)
-        : null,
+        : undefined,
       currentValue: createAssetDto.purchaseCost,
       salvageValue,
       depreciationMethod,
@@ -254,7 +256,7 @@ export class AssetsService {
       const depreciationRate =
         updateAssetDto.depreciationRate || asset.depreciationRate;
 
-      const { annualDepreciation, rate } = this.calculateDepreciation(
+      const { rate } = this.calculateDepreciation(
         purchaseCost,
         salvageValue,
         usefulLife,
@@ -290,11 +292,20 @@ export class AssetsService {
   }
 
   // Depreciation Methods
-  async calculateMonthlyDepreciation(assetId: string, year: number, month: number): Promise<AssetDepreciation> {
+  async calculateMonthlyDepreciation(
+    assetId: string,
+    year: number,
+    month: number,
+  ): Promise<AssetDepreciation> {
     const asset = await this.findOne(assetId);
 
-    if (asset.status === AssetStatus.DISPOSED || asset.status === AssetStatus.SOLD) {
-      throw new BadRequestException("Cannot calculate depreciation for disposed/sold assets");
+    if (
+      asset.status === AssetStatus.DISPOSED ||
+      asset.status === AssetStatus.SOLD
+    ) {
+      throw new BadRequestException(
+        "Cannot calculate depreciation for disposed/sold assets",
+      );
     }
 
     // Check if depreciation already exists for this period
@@ -309,7 +320,7 @@ export class AssetsService {
 
     // Calculate monthly depreciation (annual / 12)
     const monthlyDepreciationAmount =
-      ((asset.purchaseCost - asset.salvageValue) / asset.usefulLife) / 12;
+      (asset.purchaseCost - asset.salvageValue) / asset.usefulLife / 12;
 
     const openingValue = asset.currentValue;
     const closingValue = Math.max(
@@ -317,7 +328,8 @@ export class AssetsService {
       asset.salvageValue,
     );
     const actualDepreciation = openingValue - closingValue;
-    const accumulatedDepreciation = asset.accumulatedDepreciation + actualDepreciation;
+    const accumulatedDepreciation =
+      asset.accumulatedDepreciation + actualDepreciation;
 
     const depreciation = this.depreciationRepository.create({
       assetId,
@@ -330,7 +342,8 @@ export class AssetsService {
       accumulatedDepreciation,
     });
 
-    const savedDepreciation = await this.depreciationRepository.save(depreciation);
+    const savedDepreciation =
+      await this.depreciationRepository.save(depreciation);
 
     // Update asset
     asset.currentValue = closingValue;

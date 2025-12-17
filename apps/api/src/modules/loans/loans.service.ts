@@ -34,9 +34,7 @@ export class LoansService {
     return await this.authorityRepository.save(authority);
   }
 
-  async findAllAuthorities(
-    vendorId: string,
-  ): Promise<LoanAuthority[]> {
+  async findAllAuthorities(vendorId: string): Promise<LoanAuthority[]> {
     return await this.authorityRepository.find({
       where: { vendorId },
       order: { createdAt: "DESC" },
@@ -67,7 +65,7 @@ export class LoansService {
 
   async removeAuthority(id: string): Promise<void> {
     const authority = await this.findOneAuthority(id);
-    
+
     // Check if authority has active loans
     const activeLoans = await this.loanRepository.count({
       where: { authorityId: id, status: LoanStatus.ACTIVE },
@@ -88,9 +86,15 @@ export class LoansService {
     interestRate: number,
     tenureMonths: number,
     startDate: Date,
-  ): { interestAmount: number; totalAmount: number; monthlyPayment: number; endDate: Date } {
+  ): {
+    interestAmount: number;
+    totalAmount: number;
+    monthlyPayment: number;
+    endDate: Date;
+  } {
     // Calculate simple interest
-    const interestAmount = (principalAmount * interestRate * tenureMonths) / (12 * 100);
+    const interestAmount =
+      (principalAmount * interestRate * tenureMonths) / (12 * 100);
     const totalAmount = principalAmount + interestAmount;
     const monthlyPayment = totalAmount / tenureMonths;
 
@@ -225,7 +229,8 @@ export class LoansService {
       updateLoanDto.tenureMonths ||
       updateLoanDto.startDate
     ) {
-      const principalAmount = updateLoanDto.principalAmount || loan.principalAmount;
+      const principalAmount =
+        updateLoanDto.principalAmount || loan.principalAmount;
       const interestRate = updateLoanDto.interestRate || loan.interestRate;
       const tenureMonths = updateLoanDto.tenureMonths || loan.tenureMonths;
       const startDate = updateLoanDto.startDate
@@ -256,7 +261,7 @@ export class LoansService {
 
   async remove(id: string): Promise<void> {
     const loan = await this.findOne(id);
-    
+
     if (loan.status === LoanStatus.ACTIVE && loan.amountPaid > 0) {
       throw new BadRequestException(
         "Cannot delete an active loan with payments. Mark it as paid or defaulted instead.",

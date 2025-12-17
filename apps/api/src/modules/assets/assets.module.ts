@@ -7,7 +7,9 @@ import { AssetCategory } from "./entities/asset-category.entity";
 import { AssetDepreciation } from "./entities/asset-depreciation.entity";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Asset, AssetCategory, AssetDepreciation])],
+  imports: [
+    TypeOrmModule.forFeature([Asset, AssetCategory, AssetDepreciation]),
+  ],
   controllers: [AssetsController],
   providers: [AssetsService],
   exports: [AssetsService],

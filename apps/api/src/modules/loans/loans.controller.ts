@@ -40,7 +40,10 @@ export class LoansController {
   @Post("authorities")
   @RequirePermissions("loans.create")
   @ApiOperation({ summary: "Create a new loan authority" })
-  @ApiResponse({ status: 201, description: "Loan authority created successfully" })
+  @ApiResponse({
+    status: 201,
+    description: "Loan authority created successfully",
+  })
   @ApiResponse({ status: 400, description: "Bad request" })
   @ApiResponse({ status: 401, description: "Unauthorized" })
   async createAuthority(@Body() createAuthorityDto: CreateLoanAuthorityDto) {
@@ -50,7 +53,10 @@ export class LoansController {
   @Get("authorities")
   @RequirePermissions("loans.read")
   @ApiOperation({ summary: "Get all loan authorities" })
-  @ApiResponse({ status: 200, description: "Loan authorities retrieved successfully" })
+  @ApiResponse({
+    status: 200,
+    description: "Loan authorities retrieved successfully",
+  })
   async findAllAuthorities(@Query("vendorId") vendorId: string) {
     return this.loansService.findAllAuthorities(vendorId);
   }
@@ -59,7 +65,10 @@ export class LoansController {
   @RequirePermissions("loans.read")
   @ApiOperation({ summary: "Get loan authority by ID" })
   @ApiParam({ name: "id", description: "Loan authority ID" })
-  @ApiResponse({ status: 200, description: "Loan authority retrieved successfully" })
+  @ApiResponse({
+    status: 200,
+    description: "Loan authority retrieved successfully",
+  })
   @ApiResponse({ status: 404, description: "Loan authority not found" })
   async findOneAuthority(@Param("id") id: string) {
     return this.loansService.findOneAuthority(id);
@@ -69,7 +78,10 @@ export class LoansController {
   @RequirePermissions("loans.update")
   @ApiOperation({ summary: "Update loan authority" })
   @ApiParam({ name: "id", description: "Loan authority ID" })
-  @ApiResponse({ status: 200, description: "Loan authority updated successfully" })
+  @ApiResponse({
+    status: 200,
+    description: "Loan authority updated successfully",
+  })
   @ApiResponse({ status: 404, description: "Loan authority not found" })
   async updateAuthority(
     @Param("id") id: string,
@@ -83,7 +95,10 @@ export class LoansController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: "Delete loan authority" })
   @ApiParam({ name: "id", description: "Loan authority ID" })
-  @ApiResponse({ status: 204, description: "Loan authority deleted successfully" })
+  @ApiResponse({
+    status: 204,
+    description: "Loan authority deleted successfully",
+  })
   @ApiResponse({ status: 404, description: "Loan authority not found" })
   async removeAuthority(@Param("id") id: string) {
     await this.loansService.removeAuthority(id);

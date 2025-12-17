@@ -10,7 +10,7 @@ import {
   Max,
   MaxLength,
 } from "class-validator";
-import { AssetStatus, DepreciationMethod } from "../entities/asset.entity";
+import { DepreciationMethod } from "../entities/asset.entity";
 
 export class CreateAssetDto {
   @ApiProperty({

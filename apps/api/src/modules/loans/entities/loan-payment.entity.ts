@@ -35,11 +35,23 @@ export class LoanPayment {
   paymentType: PaymentType;
 
   @ApiProperty({ description: "Principal amount in this payment" })
-  @Column({ type: "decimal", precision: 15, scale: 2, name: "principal_amount", default: 0 })
+  @Column({
+    type: "decimal",
+    precision: 15,
+    scale: 2,
+    name: "principal_amount",
+    default: 0,
+  })
   principalAmount: number;
 
   @ApiProperty({ description: "Interest amount in this payment" })
-  @Column({ type: "decimal", precision: 15, scale: 2, name: "interest_amount", default: 0 })
+  @Column({
+    type: "decimal",
+    precision: 15,
+    scale: 2,
+    name: "interest_amount",
+    default: 0,
+  })
   interestAmount: number;
 
   @ApiProperty({ description: "Balance after payment" })
@@ -50,7 +62,10 @@ export class LoanPayment {
   @Column({ type: "date", name: "payment_date" })
   paymentDate: Date;
 
-  @ApiProperty({ description: "Transaction ID from accounting", required: false })
+  @ApiProperty({
+    description: "Transaction ID from accounting",
+    required: false,
+  })
   @Column({ type: "uuid", name: "transaction_id", nullable: true })
   transactionId: string;
 

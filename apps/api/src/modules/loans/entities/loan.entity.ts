@@ -42,7 +42,12 @@ export class Loan {
   authorityId: string;
 
   @ApiProperty({ description: "Loan reference number" })
-  @Column({ type: "varchar", length: 100, name: "reference_number", unique: true })
+  @Column({
+    type: "varchar",
+    length: 100,
+    name: "reference_number",
+    unique: true,
+  })
   referenceNumber: string;
 
   @ApiProperty({ description: "Loan type", enum: LoanType })
@@ -50,7 +55,12 @@ export class Loan {
   loanType: LoanType;
 
   @ApiProperty({ description: "Loan principal amount" })
-  @Column({ type: "decimal", precision: 15, scale: 2, name: "principal_amount" })
+  @Column({
+    type: "decimal",
+    precision: 15,
+    scale: 2,
+    name: "principal_amount",
+  })
   principalAmount: number;
 
   @ApiProperty({ description: "Interest rate (percentage)" })
@@ -58,7 +68,13 @@ export class Loan {
   interestRate: number;
 
   @ApiProperty({ description: "Total interest amount" })
-  @Column({ type: "decimal", precision: 15, scale: 2, name: "interest_amount", default: 0 })
+  @Column({
+    type: "decimal",
+    precision: 15,
+    scale: 2,
+    name: "interest_amount",
+    default: 0,
+  })
   interestAmount: number;
 
   @ApiProperty({ description: "Total loan amount (principal + interest)" })
@@ -66,11 +82,23 @@ export class Loan {
   totalAmount: number;
 
   @ApiProperty({ description: "Amount paid so far" })
-  @Column({ type: "decimal", precision: 15, scale: 2, name: "amount_paid", default: 0 })
+  @Column({
+    type: "decimal",
+    precision: 15,
+    scale: 2,
+    name: "amount_paid",
+    default: 0,
+  })
   amountPaid: number;
 
   @ApiProperty({ description: "Outstanding balance" })
-  @Column({ type: "decimal", precision: 15, scale: 2, name: "balance", default: 0 })
+  @Column({
+    type: "decimal",
+    precision: 15,
+    scale: 2,
+    name: "balance",
+    default: 0,
+  })
   balance: number;
 
   @ApiProperty({ description: "Loan tenure in months" })
@@ -78,7 +106,13 @@ export class Loan {
   tenureMonths: number;
 
   @ApiProperty({ description: "Monthly payment amount" })
-  @Column({ type: "decimal", precision: 15, scale: 2, name: "monthly_payment", default: 0 })
+  @Column({
+    type: "decimal",
+    precision: 15,
+    scale: 2,
+    name: "monthly_payment",
+    default: 0,
+  })
   monthlyPayment: number;
 
   @ApiProperty({ description: "Loan start date" })
@@ -93,7 +127,10 @@ export class Loan {
   @Column({ type: "varchar", length: 50, default: LoanStatus.ACTIVE })
   status: LoanStatus;
 
-  @ApiProperty({ description: "Account ID for loan transactions", required: false })
+  @ApiProperty({
+    description: "Account ID for loan transactions",
+    required: false,
+  })
   @Column({ type: "uuid", name: "account_id", nullable: true })
   accountId: string;
 

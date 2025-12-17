@@ -27,7 +27,9 @@ export class AssetCategory {
   @Column({ type: "text", nullable: true })
   description: string;
 
-  @ApiProperty({ description: "Default depreciation rate (percentage per year)" })
+  @ApiProperty({
+    description: "Default depreciation rate (percentage per year)",
+  })
   @Column({
     type: "decimal",
     precision: 5,

@@ -24,15 +24,30 @@ export class LoanAuthority {
   authorityName: string;
 
   @ApiProperty({ description: "Contact person name", required: false })
-  @Column({ type: "varchar", length: 255, name: "contact_person", nullable: true })
+  @Column({
+    type: "varchar",
+    length: 255,
+    name: "contact_person",
+    nullable: true,
+  })
   contactPerson: string;
 
   @ApiProperty({ description: "Contact email", required: false })
-  @Column({ type: "varchar", length: 255, name: "contact_email", nullable: true })
+  @Column({
+    type: "varchar",
+    length: 255,
+    name: "contact_email",
+    nullable: true,
+  })
   contactEmail: string;
 
   @ApiProperty({ description: "Contact phone", required: false })
-  @Column({ type: "varchar", length: 20, name: "contact_phone", nullable: true })
+  @Column({
+    type: "varchar",
+    length: 20,
+    name: "contact_phone",
+    nullable: true,
+  })
   contactPhone: string;
 
   @ApiProperty({ description: "Address", required: false })

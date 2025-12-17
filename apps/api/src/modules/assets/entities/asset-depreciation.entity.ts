@@ -36,7 +36,12 @@ export class AssetDepreciation {
   openingValue: number;
 
   @ApiProperty({ description: "Depreciation amount for the period" })
-  @Column({ type: "decimal", precision: 15, scale: 2, name: "depreciation_amount" })
+  @Column({
+    type: "decimal",
+    precision: 15,
+    scale: 2,
+    name: "depreciation_amount",
+  })
   depreciationAmount: number;
 
   @ApiProperty({ description: "Closing value for the period" })

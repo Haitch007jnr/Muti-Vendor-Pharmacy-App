@@ -66,7 +66,13 @@ export class Asset {
   currentValue: number;
 
   @ApiProperty({ description: "Salvage value (residual value)" })
-  @Column({ type: "decimal", precision: 15, scale: 2, name: "salvage_value", default: 0 })
+  @Column({
+    type: "decimal",
+    precision: 15,
+    scale: 2,
+    name: "salvage_value",
+    default: 0,
+  })
   salvageValue: number;
 
   @ApiProperty({ description: "Useful life in years" })
@@ -115,7 +121,12 @@ export class Asset {
   assignedTo: string;
 
   @ApiProperty({ description: "Serial number", required: false })
-  @Column({ type: "varchar", length: 100, name: "serial_number", nullable: true })
+  @Column({
+    type: "varchar",
+    length: 100,
+    name: "serial_number",
+    nullable: true,
+  })
   serialNumber: string;
 
   @ApiProperty({ description: "Manufacturer", required: false })
