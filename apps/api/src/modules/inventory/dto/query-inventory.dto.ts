@@ -1,11 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import {
-  IsUUID,
-  IsOptional,
-  IsInt,
-  IsBoolean,
-  Min,
-} from "class-validator";
+import { IsUUID, IsOptional, IsInt, IsBoolean, Min } from "class-validator";
 import { Type } from "class-transformer";
 
 export class QueryInventoryDto {

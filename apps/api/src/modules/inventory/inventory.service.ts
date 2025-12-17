@@ -4,10 +4,7 @@ import {
   BadRequestException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import {
-  Repository,
-  LessThan,
-} from "typeorm";
+import { Repository, LessThan } from "typeorm";
 import {
   Inventory,
   InventoryAdjustment,
