@@ -136,10 +136,10 @@ Muti-Vendor-Pharmacy-App/
 - [ ] Template management
 
 ### Phase 8: Web Applications
-- [ ] Responsive UI/UX design
-- [ ] Admin portal
-- [ ] Vendor portal
-- [ ] Real-time dashboards
+- [x] Responsive UI/UX design
+- [x] Admin portal
+- [x] Vendor portal
+- [x] Real-time dashboards
 
 ### Phase 9: Mobile Applications
 - [ ] Customer mobile app
