@@ -1,13 +1,14 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
+import { Order, ScreenProps } from '../../types';
 
-const mockOrders = [
+const mockOrders: Order[] = [
   { id: '1', orderNumber: 'ORD-001', status: 'Pending', total: 29.97 },
   { id: '2', orderNumber: 'ORD-002', status: 'Completed', total: 45.50 },
 ];
 
-export default function OrdersScreen() {
-  const renderOrder = ({ item }: any) => (
+export default function OrdersScreen({ navigation }: ScreenProps) {
+  const renderOrder = ({ item }: { item: Order }) => (
     <View style={styles.card}>
       <Text style={styles.orderNumber}>{item.orderNumber}</Text>
       <View style={styles.row}>

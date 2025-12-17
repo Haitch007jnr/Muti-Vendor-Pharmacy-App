@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { Delivery, ScreenProps } from '../../types';
 
-const mockDeliveries = [
+const mockDeliveries: Delivery[] = [
   {
     id: '1',
     orderNumber: 'ORD-2024-001',
@@ -20,8 +21,8 @@ const mockDeliveries = [
   },
 ];
 
-export default function DeliveriesScreen({ navigation }: any) {
-  const getStatusColor = (status: string) => {
+export default function DeliveriesScreen({ navigation }: ScreenProps) {
+  const getStatusColor = (status: Delivery['status']) => {
     switch (status) {
       case 'Assigned':
         return '#3B82F6';
@@ -34,7 +35,7 @@ export default function DeliveriesScreen({ navigation }: any) {
     }
   };
 
-  const renderDelivery = ({ item }: any) => (
+  const renderDelivery = ({ item }: { item: Delivery }) => (
     <TouchableOpacity
       style={styles.deliveryCard}
       onPress={() => navigation.navigate('DeliveryDetail', { deliveryId: item.id })}

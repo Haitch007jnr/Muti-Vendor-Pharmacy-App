@@ -1,14 +1,15 @@
 import React from 'react';
 import { View, Text, StyleSheet, FlatList } from 'react-native';
+import { InventoryItem } from '../../types';
 
-const mockInventory = [
+const mockInventory: InventoryItem[] = [
   { id: '1', name: 'Paracetamol 500mg', stock: 150, lowStock: false },
   { id: '2', name: 'Ibuprofen 200mg', stock: 5, lowStock: true },
   { id: '3', name: 'Vitamin C 1000mg', stock: 80, lowStock: false },
 ];
 
 export default function InventoryScreen() {
-  const renderItem = ({ item }: any) => (
+  const renderItem = ({ item }: { item: InventoryItem }) => (
     <View style={styles.card}>
       <Text style={styles.productName}>{item.name}</Text>
       <View style={styles.stockInfo}>

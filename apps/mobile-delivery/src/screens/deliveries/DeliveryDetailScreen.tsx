@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { ScreenProps, Delivery } from '../../types';
 
-export default function DeliveryDetailScreen({ route }: any) {
-  const { deliveryId } = route.params;
-  const [status, setStatus] = useState('Assigned');
+type DeliveryStatus = Delivery['status'];
 
-  const handleStatusUpdate = (newStatus: string) => {
+export default function DeliveryDetailScreen({ route }: ScreenProps) {
+  const { deliveryId } = (route?.params || {}) as { deliveryId: string };
+  const [status, setStatus] = useState<DeliveryStatus>('Assigned');
+
+  const handleStatusUpdate = (newStatus: DeliveryStatus) => {
     setStatus(newStatus);
     Alert.alert('Success', `Delivery status updated to ${newStatus}`);
   };
