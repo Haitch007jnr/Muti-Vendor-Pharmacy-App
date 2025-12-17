@@ -25,7 +25,9 @@ export class WebhookService {
                    this.configService.get<string>("PAYSTACK_SECRET_KEY");
 
     if (!secret) {
-      throw new Error("PAYSTACK_WEBHOOK_SECRET or PAYSTACK_SECRET_KEY is not configured");
+      throw new Error(
+        "Payment gateway webhook secret is not configured. Please set PAYSTACK_WEBHOOK_SECRET or PAYSTACK_SECRET_KEY in environment variables."
+      );
     }
 
     const hash = crypto.createHmac("sha512", secret).update(payload).digest("hex");
@@ -38,7 +40,9 @@ export class WebhookService {
                    this.configService.get<string>("MONNIFY_SECRET_KEY");
 
     if (!secret) {
-      throw new Error("MONNIFY_WEBHOOK_SECRET or MONNIFY_SECRET_KEY is not configured");
+      throw new Error(
+        "Payment gateway webhook secret is not configured. Please set MONNIFY_WEBHOOK_SECRET or MONNIFY_SECRET_KEY in environment variables."
+      );
     }
 
     const hash = crypto.createHmac("sha512", secret).update(payload).digest("hex");
