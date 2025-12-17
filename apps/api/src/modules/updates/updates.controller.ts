@@ -4,6 +4,7 @@ import {
   Post,
   Body,
   Param,
+  Query,
   UseGuards,
   HttpCode,
   HttpStatus,
@@ -34,7 +35,7 @@ export class UpdatesController {
     status: 200,
     description: "Returns update availability information",
   })
-  async checkForUpdates(@Body() checkUpdateDto?: CheckUpdateDto) {
+  async checkForUpdates(@Query() checkUpdateDto?: CheckUpdateDto) {
     return this.updatesService.checkForUpdates(checkUpdateDto);
   }
 

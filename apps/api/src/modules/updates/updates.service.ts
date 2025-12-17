@@ -23,6 +23,7 @@ import {
 export class UpdatesService {
   private readonly logger = new Logger(UpdatesService.name);
   private readonly currentVersion: string;
+  private readonly simulationDelay: number;
 
   constructor(
     @InjectRepository(Update)
@@ -30,6 +31,8 @@ export class UpdatesService {
     private readonly configService: ConfigService,
   ) {
     this.currentVersion = this.configService.get<string>("APP_VERSION", "1.0.0");
+    // Allow configuring simulation delay for testing/development (0 in production)
+    this.simulationDelay = this.configService.get<number>("UPDATE_SIMULATION_DELAY", 0);
   }
 
   /**
@@ -253,9 +256,14 @@ export class UpdatesService {
 
   /**
    * Helper method to compare version numbers
+   * Note: This is a basic semantic version comparator for simple versions (e.g., 1.2.3)
+   * For production use with complex versioning (pre-release, build metadata),
+   * consider using a library like 'semver' for more robust comparison
    */
   private isNewerVersion(versionA: string, versionB: string): boolean {
     const parseVersion = (version: string): number[] => {
+      // Remove non-numeric characters for basic comparison
+      // This works for simple versions like "1.2.3" but not "1.0.0-beta"
       return version.split(".").map((v) => parseInt(v.replace(/\D/g, ""), 10) || 0);
     };
 
@@ -287,8 +295,10 @@ export class UpdatesService {
     // 5. Restart services
     // 6. Verify update success
 
-    // Simulate some work
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    // Simulate work (configurable delay, 0 by default in production)
+    if (this.simulationDelay > 0) {
+      await new Promise((resolve) => setTimeout(resolve, this.simulationDelay));
+    }
 
     this.logger.log(`Update steps completed for version: ${update.version}`);
   }
@@ -307,8 +317,10 @@ export class UpdatesService {
     // 5. Restart services
     // 6. Verify rollback success
 
-    // Simulate some work
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    // Simulate work (configurable delay, 0 by default in production)
+    if (this.simulationDelay > 0) {
+      await new Promise((resolve) => setTimeout(resolve, this.simulationDelay));
+    }
 
     this.logger.log(`Rollback steps completed for version: ${update.version}`);
   }

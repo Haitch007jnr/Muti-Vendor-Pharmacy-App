@@ -17,16 +17,12 @@ The Updates Module provides a comprehensive system for managing application upda
 
 #### Check for Updates
 ```
-GET /updates/check
+GET /updates/check?currentVersion=1.0.0
 ```
 Check if new updates are available.
 
-**Request Body (Optional):**
-```json
-{
-  "currentVersion": "1.0.0"
-}
-```
+**Query Parameters (Optional):**
+- `currentVersion`: Version string (e.g., "1.0.0")
 
 **Response:**
 ```json
@@ -248,6 +244,8 @@ Add to your `.env` file:
 
 ```env
 APP_VERSION=1.0.0
+# Optional: Set simulation delay for testing/development (in milliseconds, 0 in production)
+UPDATE_SIMULATION_DELAY=0
 ```
 
 ## Testing
