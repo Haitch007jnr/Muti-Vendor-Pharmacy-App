@@ -262,9 +262,12 @@ export class UpdatesService {
    */
   private isNewerVersion(versionA: string, versionB: string): boolean {
     const parseVersion = (version: string): number[] => {
-      // Remove non-numeric characters for basic comparison
-      // This works for simple versions like "1.2.3" but not "1.0.0-beta"
-      return version.split(".").map((v) => parseInt(v.replace(/\D/g, ""), 10) || 0);
+      // Extract only the main version numbers (e.g., "1.2.3" from "1.2.3-beta")
+      const mainVersion = version.split("-")[0];
+      return mainVersion.split(".").map((v) => {
+        const parsed = parseInt(v, 10);
+        return isNaN(parsed) ? 0 : parsed;
+      });
     };
 
     const a = parseVersion(versionA);

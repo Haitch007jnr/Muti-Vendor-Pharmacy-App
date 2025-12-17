@@ -26,7 +26,7 @@ export class Update {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @Column({ type: "varchar", length: 50 })
+  @Column({ type: "varchar", length: 50, unique: true })
   version: string;
 
   @Column({ type: "enum", enum: UpdateType })
