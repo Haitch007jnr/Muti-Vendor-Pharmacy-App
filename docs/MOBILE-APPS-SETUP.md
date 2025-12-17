@@ -383,6 +383,84 @@ const token = await AsyncStorage.getItem('authToken');
 await AsyncStorage.removeItem('authToken');
 ```
 
+## In-App Updates (OTA Updates)
+
+### Overview
+
+All mobile apps support Over-The-Air (OTA) updates via `expo-updates`, allowing you to push updates without requiring users to download from app stores.
+
+### Configuration
+
+Each app is configured with automatic update checking:
+
+```json
+{
+  "updates": {
+    "enabled": true,
+    "checkAutomatically": "ON_LOAD",
+    "fallbackToCacheTimeout": 0
+  },
+  "runtimeVersion": {
+    "policy": "sdkVersion"
+  }
+}
+```
+
+### How It Works
+
+1. **Automatic Check**: App checks for updates on launch
+2. **User Prompt**: Alert shown if update is available
+3. **Download & Install**: User can download and apply update
+4. **Restart**: App restarts to apply the update
+
+### Publishing Updates
+
+```bash
+# Install EAS CLI
+npm install -g eas-cli
+
+# Login to Expo
+eas login
+
+# Publish update to production
+cd apps/mobile-customer
+eas update --branch production --message "Bug fixes"
+
+# For other apps
+cd apps/mobile-vendor
+eas update --branch production --message "Bug fixes"
+
+cd apps/mobile-delivery
+eas update --branch production --message "Bug fixes"
+```
+
+### Update Channels
+
+- **development**: Development builds
+- **preview**: Testing and QA
+- **production**: Production releases
+
+### What Can Be Updated
+
+✅ JavaScript/TypeScript code
+✅ Assets (images, fonts)
+✅ Configuration
+✅ Bug fixes
+✅ UI changes
+
+❌ Native code changes (requires new app store build)
+❌ New native dependencies
+❌ Permission changes
+
+### Testing Updates
+
+1. Build a development app: `eas build --profile development`
+2. Install on device
+3. Publish update: `eas update --branch development`
+4. Reopen app to receive update
+
+For detailed information, see [IN-APP-UPDATES.md](./IN-APP-UPDATES.md).
+
 ## Push Notifications
 
 ### Setup (Future Implementation)
