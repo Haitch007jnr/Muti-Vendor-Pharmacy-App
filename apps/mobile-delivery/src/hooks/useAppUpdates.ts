@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import * as Updates from 'expo-updates';
-import { Alert, Platform } from 'react-native';
+import { Alert } from 'react-native';
 
 interface UpdateInfo {
   isUpdateAvailable: boolean;
