@@ -39,8 +39,8 @@ services:
   # API Backend
   api:
     build:
-      context: ./apps/api
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./apps/api/Dockerfile
     container_name: pharmacy-api
     environment:
       NODE_ENV: development
@@ -66,8 +66,8 @@ services:
   # Admin Web Portal
   web-admin:
     build:
-      context: ./apps/web-admin
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./apps/web-admin/Dockerfile
     container_name: pharmacy-web-admin
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:4000
@@ -86,8 +86,8 @@ services:
   # Vendor Web Portal
   web-vendor:
     build:
-      context: ./apps/web-vendor
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./apps/web-vendor/Dockerfile
     container_name: pharmacy-web-vendor
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:4000

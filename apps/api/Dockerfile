@@ -1,26 +1,39 @@
-FROM node:18-alpine AS development
+FROM node:18-alpine AS base
 
+# Install dependencies for the entire monorepo
+FROM base AS deps
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
+# Copy workspace files
 COPY package*.json ./
+COPY turbo.json ./
+COPY packages ./packages
+COPY apps/api/package*.json ./apps/api/
 
-RUN npm install
+RUN npm ci
 
-COPY . .
+# Build the API
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/apps ./apps
+COPY --from=deps /app/packages ./packages
+COPY package*.json ./
+COPY turbo.json ./
+COPY apps/api ./apps/api
 
+WORKDIR /app/apps/api
 RUN npm run build
 
-FROM node:18-alpine AS production
-
-ARG NODE_ENV=production
-ENV NODE_ENV=${NODE_ENV}
-
+# Production image
+FROM base AS runner
 WORKDIR /app
 
-COPY package*.json ./
+ENV NODE_ENV production
 
-RUN npm ci --only=production
-
-COPY --from=development /app/dist ./dist
+COPY --from=builder /app/apps/api/dist ./dist
+COPY --from=builder /app/apps/api/package*.json ./
+COPY --from=deps /app/node_modules ./node_modules
 
 CMD ["node", "dist/main"]
