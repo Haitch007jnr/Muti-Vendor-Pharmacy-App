@@ -7,6 +7,7 @@ WORKDIR /app
 
 # Copy workspace files
 COPY package*.json ./
+COPY package-lock.json ./
 COPY turbo.json ./
 COPY packages ./packages
 COPY apps/web-vendor/package*.json ./apps/web-vendor/
