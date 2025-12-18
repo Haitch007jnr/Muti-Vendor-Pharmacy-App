@@ -23,7 +23,7 @@
     "@react-navigation/native-stack": "^6.9.17",
     "react-native-screens": "~3.29.0",
     "react-native-safe-area-context": "4.8.2",
-    "@pharmacy/shared": "workspace:*",
+    "@pharmacy/shared": "*",
     "axios": "^1.6.2",
     "expo-image-picker": "~14.7.1",
     "expo-camera": "~14.1.0",
