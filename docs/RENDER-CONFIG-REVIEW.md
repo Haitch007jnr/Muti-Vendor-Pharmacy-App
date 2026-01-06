@@ -64,22 +64,23 @@ services:
     runtime: node
     region: ohio
     plan: starter
-    buildCommand: npm install && turbo run build --filter=@pharmacy/api
-    startCommand: cd apps/api && npm run start:prod
+    buildCommand: npm ci && turbo run build --filter=@pharmacy/api
+    startCommand: cd apps/api && node dist/main.js
 ```
 
 **Review Notes:**
 ✅ **Correct Configuration**:
 - Build command uses Turborepo for efficient builds
-- Start command correctly navigates to the API directory
+- Uses `npm ci` for faster, more reliable builds
+- Start command correctly navigates to the API directory and runs optimized production build
 - Health check path is set to `/api/v1` (matches the global prefix)
 
 ⚠️ **Potential Issues**:
 
-1. **Build Command Efficiency**:
-   - Current: `npm install && turbo run build --filter=@pharmacy/api`
+1. **Build Command Filter Syntax**:
+   - Current: `npm ci && turbo run build --filter=@pharmacy/api`
    - The filter syntax might need adjustment based on package.json name
-   - Consider: `npm ci` instead of `npm install` for faster, more reliable builds
+   - Verify the package name in apps/api/package.json matches `@pharmacy/api`
 
 2. **Missing Node Version Specification**:
    - Should add Node version to package.json engines field
@@ -90,15 +91,7 @@ services:
    - This should return 200 OK for health checks to pass
    - Verify the endpoint returns proper response format
 
-**Recommended Improvements**:
-
-```yaml
-# Add to service configuration
-env: node
-buildCommand: npm ci && turbo run build --filter=@pharmacy/api
-startCommand: cd apps/api && node dist/main.js
-healthCheckPath: /api/v1
-```
+**Configuration is already optimized** with recommended improvements applied.
 
 ### 4. Frontend Services (Admin & Vendor Portals)
 
@@ -109,14 +102,14 @@ services:
     runtime: node
     region: ohio
     plan: starter
-    buildCommand: npm install && turbo run build --filter=web-admin
+    buildCommand: npm ci && turbo run build --filter=web-admin
     startCommand: cd apps/web-admin && npm run start
 ```
 
 **Review Notes:**
 ✅ **Correct Configuration**:
 - Separate services for admin and vendor portals
-- Build commands use Turborepo
+- Build commands use Turborepo with `npm ci` for faster builds
 - Start commands navigate to correct directories
 
 ⚠️ **Potential Issues**:
