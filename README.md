@@ -203,6 +203,23 @@ docker-compose down      # Stop all services
 docker-compose logs -f   # View logs
 ```
 
+## 🚀 Deployment
+
+### Render.com Deployment
+
+The platform can be deployed to Render.com using the included blueprint configuration:
+
+1. **Quick Start**: See [Render Deployment Guide](./docs/RENDER-DEPLOYMENT-GUIDE.md)
+2. **Configuration Review**: See [Render Config Review](./docs/RENDER-CONFIG-REVIEW.md)
+3. **Deployment Checklist**: See [Render Deployment Checklist](./docs/RENDER-DEPLOYMENT-CHECKLIST.md)
+
+The `render.yaml` file in the repository root contains the complete infrastructure configuration including:
+- PostgreSQL database
+- Redis cache
+- NestJS API backend
+- Next.js admin portal
+- Next.js vendor portal
+
 ## 🔐 Authentication & Authorization
 
 The platform implements a **Dynamic Role-Based Access Control (RBAC)** system with the following roles:
